@@ -1,0 +1,1 @@
+const KeyGoogleMap = "AIzaSyBAER_D4MhSdNYakGYA78MRW0HvVNrryTQ";
