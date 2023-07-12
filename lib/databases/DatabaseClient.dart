@@ -507,13 +507,27 @@ class DatabaseClient {
   ///#   TABLE vehicule
   ///    functions
 
+  // Future<List<Vehicules>> VehiculeInfo({required int idKey}) async {
+  //   final Database db = await database;
+  //   final List<Map<String, Object?>> rawQueryResult = await db!.rawQuery(
+  //     "SELECT * FROM vehicules WHERE id = $idKey",
+  //   );
+  //   return rawQueryResult.map((e) => Vehicules.fromMap(e)).toList();
+  // }
+
   Future<List<Vehicules>> VehiculeInfo({required int idKey}) async {
     final Database db = await database;
     final List<Map<String, Object?>> rawQueryResult = await db!.rawQuery(
       "SELECT * FROM vehicules WHERE id = $idKey",
     );
-    return rawQueryResult.map((e) => Vehicules.fromMap(e)).toList();
+    if (rawQueryResult.isNotEmpty) {
+      return rawQueryResult.map((e) => Vehicules.fromMap(e)).toList();
+    } else {
+      // Handle the case when no data is found
+      return []; // or you can return null if you prefer
+    }
   }
+
 
   Future<bool> VehiculeUpdateLoc(
       {required int idKey,

@@ -122,7 +122,7 @@ class screen1State extends State<screen1> {
   StreamSubscription<Activity>? _activityStreamSubscription;
 
   final speedNotifier = ValueNotifier<double>(10);
-  final key = GlobalKey<KdGaugeViewState>();
+  GlobalKey<KdGaugeViewState> guagekey = GlobalKey<KdGaugeViewState>();
 
   ///*
   /// Fin Mise en place gestion activity recognition
@@ -240,7 +240,7 @@ class screen1State extends State<screen1> {
             children: [
               SizedBox(
                 width: _width,
-                height: _height - 145,
+                height: _height - 250,
                 child: IndexedStack(
                     alignment: Alignment.center,
                     index: this.selectedIndex,
@@ -465,7 +465,7 @@ class screen1State extends State<screen1> {
         _speedAccuracy = location.speedAccuracy;
         _lat = location.latitude;
         _lon = location.longitude;
-        key.currentState!.updateSpeed(_speed);
+       guagekey.currentState!.updateSpeed(_speed);
 
         Container_Speedometer();
         Container_GMaps_ZoneResidentielle();
@@ -707,7 +707,7 @@ class screen1State extends State<screen1> {
     return Container(
         margin: EdgeInsets.all(2),
         padding: EdgeInsets.all(5),
-        height: _height / 3 - 75,
+        height: _height / 3 - 70,
         decoration: BoxDecoration(
           color: color_background,
           border: Border.all(color: color_border),
@@ -877,7 +877,7 @@ class screen1State extends State<screen1> {
             height: 330,
             padding: EdgeInsets.all(2),
             child: KdGaugeView(
-              key: key,
+              key: guagekey,
               minSpeed: 5,
               maxSpeed: 200,
               speed: 10,

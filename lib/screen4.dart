@@ -24,24 +24,57 @@ class screen4State extends State<screen4> {
 
   List<NewsModel> newsModels = [];
 
-  void rssResponse() {
+  // void rssResponse() {
+  //   final client = http.Client();
+  //   // RSS feed
+  //   client.get(Uri.parse('https://www.turbo.fr/global.xml')).then((response) {
+  //     return response.body;
+  //   }).then((bodyString) {
+  //     final channel = RssFeed.parse(bodyString);
+  //     channel.items.forEach((e) {
+  //       newsModels.add(NewsModel(e.title, e.description, e.link,
+  //           e.pubDate));   //, e.enclosure as List<Enclosure>? ));
+  //     });
+  //     return channel;
+  //   });
+  // }
+
+  void newrssResponse() {
+    // RssFeed feed = RssFeed.parse(xmlString);
     final client = http.Client();
-    // RSS feed
-    client.get(Uri.parse('https://www.turbo.fr/global.xml')).then((response) {
-      return response.body;
-    }).then((bodyString) {
-      final channel = RssFeed.parse(bodyString);
-      channel.items.forEach((e) {
-        newsModels.add(NewsModel(e.title, e.description, e.link,
-            e.pubDate));   //, e.enclosure as List<Enclosure>? ));
+      client.get(Uri.parse('https://www.turbo.fr/global.xml')).then((response) {
+        return response.body;
+      }).then((bodyString) {
+        final channel = RssFeed.parse(bodyString);
+        channel.items.forEach((e) {
+          String? imageUrl = '';
+          if (e.enclosure != null && e.enclosure!.type == 'image/jpeg') {
+            imageUrl = e.enclosure!.url;
+          }
+
+          newsModels.add(NewsModel(
+            title: e.title ?? '',
+            link: e.link ?? '',
+            description: e.description ?? '',
+            pubDate: e.pubDate ?? '',
+            creator: e.dc!.creator ?? '',
+            imageUrl: imageUrl!,
+          ));
+
+           //, e.enclosure as List<Enclosure>? ));
+        });
+
+
+        return channel;
       });
-      return channel;
-    });
-  }
+    }
+
+
+
 
   @override
   void initState() {
-    rssResponse();
+    newrssResponse();
     super.initState();
   }
 
@@ -74,6 +107,9 @@ class screen4State extends State<screen4> {
                             fit:BoxFit.cover, height:80, width:80)
                            : Text("no image"),
 */
+                        newsModels[index].imageUrl.isNotEmpty
+                            ? Image.network(newsModels[index].imageUrl)
+                            : Icon(Icons.image),
                         Text(
                           newsModels[index].title!,
                           style: TextStyle_regular),
@@ -100,18 +136,37 @@ class screen4State extends State<screen4> {
   }
 }
 
+// class NewsModel {
+//   String? title;
+//   String? description;
+//   String? link;
+//   String? pubDate;
+// //  List<Enclosure>? enclosure;
+//   NewsModel(this.title, this.description, this.link, this.pubDate); //, this.enclosure);
+// }
+//
+// class Enclosure {
+//   String? url;
+//   String? type;
+//   String? length;
+//   Enclosure(this.url, this.type, this.length);
+// }
+
 class NewsModel {
-  String? title;
-  String? description;
-  String? link;
-  String? pubDate;
-//  List<Enclosure>? enclosure;
-  NewsModel(this.title, this.description, this.link, this.pubDate); //, this.enclosure);
+  String title;
+  String link;
+  String description;
+  String pubDate;
+  String creator;
+  String imageUrl;
+
+  NewsModel({
+    required this.title,
+    required this.link,
+    required this.description,
+    required this.pubDate,
+    required this.creator,
+    this.imageUrl = '',
+  });
 }
 
-class Enclosure {
-  String? url;
-  String? type;
-  String? length;
-  Enclosure(this.url, this.type, this.length);
-}

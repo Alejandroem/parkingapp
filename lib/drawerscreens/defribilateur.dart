@@ -2,29 +2,22 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_lorem/flutter_lorem.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:http/http.dart' as http;
+import 'package:mycar/widget/loading_shimmer.dart';
 
-import '../api_controle_technique/api_FrenchControleTechnique_call.dart';
+import '../constants.dart';
 import '../api_defribilateur/api_defribilateur_call.dart';
 import '../api_defribilateur/api_defribilateur_response.dart';
-import '../model/geo_position.dart';
-import '../services/data_services.dart';
 import '../services/location_service.dart';
 
-import '../utils.dart';
-import '../constants.dart';
-import '../widget/widgets.dart';
-import '../text_FR.dart';
-import '../utils.dart';
-import '../widget/widgets.dart';
-import '../text_FR.dart';
+
 
 class defribilateur extends StatefulWidget {
   const defribilateur({super.key, this.androidDrawer});
@@ -41,42 +34,31 @@ class defribilateurState extends State<defribilateur> {
 
   bool _isLoading = false;
   bool orderByPrice = true;
-
-  GeoPosition? positionToCall;
-  ApiDefribilateur_response? apiResponse;
+  List<dynamic> collectproxDef = [];
+  List<dynamic> listProxDef = [];
+  ApiDefribilateurCall? apiDefribilateurCall;
+   ApiDefribilateur_response? response;
 
   @override
   void initState() {
-    getGeoPosition();
+     DefribilateursList();
+
     super.initState();
   }
 
-  //Obtenir position GPS
-  getGeoPosition() async {
-    // find position of the user
-    final loc = await LocationService().getCity();
-    if (loc != null) {
-      setState(() {
-        positionToCall = loc;
-      });
-      // call French Controle Technique API
-      getdefribilateurList();
-    }
-  }
 
-  //CallApi to get Energies Prices
-  getdefribilateurList() async {
-    if (positionToCall == null) return;
-    setState(() {
-      _isLoading = true;
-    }); //show loader
-    print ('******************************REQUEST apiResponseCT********************************');
-   // apiResponse = (await ApiDefribilateur().Debrifilateur(positionToCall!)) as ApiDefribilateur_response?;
-    setState(() {
-      print ('***********************************apiResponseCT********************************');
-      print(apiResponse);
-      _isLoading = false;
-    }); //hide loader
+  DefribilateursList() async {
+     ApiDefribilateurCall apiDefribilateurCall =  await ApiDefribilateurCall();
+     // print('Def print');
+     //  print(apiDefribilateurCall.DefribilateursList());
+     //
+     collectproxDef  = await apiDefribilateurCall.DefribilateursList();
+
+        setState(() {
+          listProxDef = collectproxDef;
+        });
+
+        print('this is ListProx def ${listProxDef}');
   }
 
   Widget build(BuildContext context) {
@@ -97,7 +79,7 @@ class defribilateurState extends State<defribilateur> {
                 Text("Nous interrogeons",
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineLarge),
-                Text("la base de données des Controles Technique",
+                Text("la base de données des défribilateurs",
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.headlineLarge),
                 Transform.scale(
@@ -114,44 +96,11 @@ class defribilateurState extends State<defribilateur> {
     } else {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Centres de controle technique'),
+          title: const Text('Liste des défribilateurs à proximité'),
         ),
         body: Column(
           children: [
-            Container(
-              color: color_background2,
-              child: Row(
-                children: [
-                  Text(
-                    '      Classement par prix ',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.white),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.price_change,
-                      color: Colors.white,
-                    ),
-                    highlightColor: Colors.greenAccent,
-                    onPressed: () {
-                      orderByPrice = true;
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.social_distance,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      orderByPrice = false;
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
+        listProxDef.isEmpty ? ShimmerListLoading() :   Expanded(
               child: ListView.builder(
                 itemCount: _itemsLength,
                 itemBuilder: (context, index) => Card(
@@ -160,16 +109,24 @@ class defribilateurState extends State<defribilateur> {
                       radius: 20.0,
                       backgroundColor: color_background2,
                       child: Text(
-                        "", // titles[index].substring(0, 1),
+                        ".",
                         style: const TextStyle(color: Colors.white),
                       ),
                     ),
                     title: Text(
-                        'test',
+                        "*",
+                        // apiDefribilateurCall?[index].nom,
                         style: TextStyle_small),
                     subtitle: Text(
-                        "Visite : ",
-                        style: TextStyle_verysmall),
+                        // response!.latCoor1.toString()
+                        //     + " " + response!.gid.toString()
+                        //     + " - " + response!.gid.toString()
+                        //     + " " + response!.gid.toString(),
+                        listProxDef[index]['etat_valid'].toString()
+
+
+                        ,style: TextStyle_verysmall
+                    ),
                   ),
                   //trailing: const Icon(Icons.arrow_forward),
                 ),
@@ -179,15 +136,6 @@ class defribilateurState extends State<defribilateur> {
         ),
       );
     }
-  }
-
-  PriceFormat(String _price) {
-    var formatPrice;
-    var fPrice = NumberFormat("#.##", "fr_FR");
-    (_price == 'null')
-        ? formatPrice = 'N.C.'
-        : formatPrice = fPrice.format(double.tryParse(_price.toString()));
-    return formatPrice;
   }
 
   DistanceFormat(String _distance) {
@@ -200,14 +148,25 @@ class defribilateurState extends State<defribilateur> {
     return formatDistance;
   }
 
-/*
-  void _sortProducts(bool ascending) {
-    setState(() {
-      //_sortAscending = ascending;
-      apiResponseCT?.records.sort((a, b) => ascending
-          ? a['sp98_prix'].compareTo(b['sp98_prix'])
-          : b['dist'].compareTo(a['dist']));
-    });
-  }
-*/
+
 }
+
+
+class TokenAPI {
+  String? token;
+
+  TokenAPI(
+      {this.token});
+
+  TokenAPI.fromJson(Map<String, dynamic> json) {
+    token = json['token'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = new Map<String, dynamic>();
+    data['token'] = this.token;
+    return data;
+  }
+}
+
+

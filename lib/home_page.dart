@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mycar/services/webview3.dart';
+import 'package:mycar/widget/loading_shimmer.dart';
 import 'package:provider/provider.dart';
 
 import '../Providers/screenIndexProvider.dart';
@@ -49,7 +50,7 @@ class HomePageState extends State<HomePage> {
     if (fromDb != null) {
       setState(() {
         items = fromDb;
-        });
+      });
       return true;
     } else {
       return false;
@@ -105,7 +106,7 @@ class HomePageState extends State<HomePage> {
       builder: (context, snapshot) {
         if (snapshot.hasData) {
           final _screenindexprovider =
-              Provider.of<screenIndexProvider>(context);
+          Provider.of<screenIndexProvider>(context);
           int currentScreenIndex = _screenindexprovider.fetchCurrentScreenIndex;
           return Scaffold(
 
@@ -126,7 +127,7 @@ class HomePageState extends State<HomePage> {
                 });
               },
               children: [
-                screen1(
+            items.isEmpty ? ShimmerListLoading() :   screen1(
                     lat: items?[0].last_lattitude ?? 48.873821,
                     lon: items?[0].last_longitude ?? 2.315757,
                     isInZone: items?[0].residentiel_in ?? 0,
@@ -134,13 +135,13 @@ class HomePageState extends State<HomePage> {
                     CurrentActivity: 0,
                     LastDateTimeParking: items?[0].residentiel_datetime ?? "",
                     LastAdresse: items?[0].last_adresse ?? ""
-                    ),
-                screen2(
-                    lat: items?[0].last_lattitude ?? 48.873821,
-                    lon: items?[0].last_longitude ?? 2.315757,
-                    isInZone: items?[0].residentiel_in ?? 0,
-                    CurrentActivity: 0,
-                    ),
+                ),
+                items.isEmpty ? ShimmerListLoading() :      screen2(
+                  lat: items?[0].last_lattitude ?? 48.873821,
+                  lon: items?[0].last_longitude ?? 2.315757,
+                  isInZone: items?[0].residentiel_in ?? 0,
+                  CurrentActivity: 0,
+                ),
                 screen3_my_vehicule(),
                 screen4(),
                 screen5_carburant()
@@ -164,7 +165,7 @@ class HomePageState extends State<HomePage> {
           );
         }
         else {
-          return CircularProgressIndicator();
+          return ShimmerListLoading();
         }
       });
 
@@ -172,183 +173,183 @@ class HomePageState extends State<HomePage> {
     return DrawerHeader(
       child: Center(
           child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Icon(Icons.car_rental, color: color_background, size: 48),
-          Text("My Car Application")
-        ],
-      )),
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Icon(Icons.car_rental, color: color_background, size: 48),
+              Text("My Car Application")
+            ],
+          )),
     );
   }
 
   Drawer _buildDrawer(BuildContext context) {
     return Drawer(
-        child: ListView(
-     //   itemExtent: 30.0,
-         shrinkWrap: true,
-          // Important: Remove any padding from the ListView.
-          padding: EdgeInsets.zero,
-          children: [
-            const SizedBox(
-              height: 100,
-              child: const DrawerHeader(
-                decoration: BoxDecoration(
-                  color: Colors.grey,
+      child: ListView(
+        //   itemExtent: 30.0,
+        shrinkWrap: true,
+        // Important: Remove any padding from the ListView.
+        padding: EdgeInsets.zero,
+        children: [
+          const SizedBox(
+            height: 100,
+            child: const DrawerHeader(
+              decoration: BoxDecoration(
+                color: Colors.grey,
+              ),
+              child: Center(
+                child: Text(
+                  'My Car Application',
+                  style: TextStyle(color: Colors.black, fontSize: 20),
                 ),
-                child: Center(
-                  child: Text(
-                    'My Car Application',
-                    style: TextStyle(color: Colors.black, fontSize: 20),
-                  ),
-                ),
               ),
             ),
-            ListTile(
-              leading: Icon(
-                Icons.train,
-              ),
-              title: const Text('Mes papiers'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => mespapiers()));
-              },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.train,
             ),
-            ListTile(
-              leading: Icon(
-                Icons.train,
-              ),
-              title: const Text('Mes adresses'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const mesadresses()));
-              },
+            title: const Text('Mes papiers'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => mespapiers()));
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.train,
             ),
+            title: const Text('Mes adresses'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const mesadresses()));
+            },
+          ),
 
-            Divider(
-              thickness: 1,
-              color: Colors.blue,
+          Divider(
+            thickness: 1,
+            color: Colors.blue,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.train,
             ),
-            ListTile(
-              leading: Icon(
-                Icons.train,
-              ),
-              title: const Text('Fourrière'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => fourrieres()));
-              },
+            title: const Text('Fourrière'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => fourrieres()));
+            },
+          ),
+          Divider(
+            thickness: 1,
+            color: Colors.blue,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.train,
             ),
-            Divider(
-              thickness: 1,
-              color: Colors.blue,
+            title: const Text('Accident'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => accident()));
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.train,
             ),
-            ListTile(
-              leading: Icon(
-                Icons.train,
-              ),
-              title: const Text('Accident'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => accident()));
-              },
+            title: const Text('Panne'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => pannes()));
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.train,
             ),
-            ListTile(
-              leading: Icon(
-                Icons.train,
-              ),
-              title: const Text('Panne'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => pannes()));
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.train,
-              ),
-              title: const Text('Défribillateurs'), // Accident
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => defribilateur()));
-              },
+            title: const Text('Défribillateurs'), // Accident
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => defribilateur()));
+            },
 
+          ),
+          Divider(
+            thickness: 1,
+            color: Colors.blue,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.train,
             ),
-            Divider(
-              thickness: 1,
-              color: Colors.blue,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.train,
-              ),
-              title: const Text('Comparateur Assurance'),
-              onTap: () {
-                Navigator.push(context,
-                    //  MaterialPageRoute(builder: (context) => DevEnCours()));
-                    MaterialPageRoute(builder: (context) => DevEnCours()));
-              },
-            ),
+            title: const Text('Comparateur Assurance'),
+            onTap: () {
+              Navigator.push(context,
+                  //  MaterialPageRoute(builder: (context) => DevEnCours()));
+                  MaterialPageRoute(builder: (context) => DevEnCours()));
+            },
+          ),
 
-            ListTile(
-              leading: Icon(
-                Icons.train,
-              ),
-              title: const Text('Centre de controle technique'),
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => ApiFrenchControleTechnique()));
-              },
+          ListTile(
+            leading: Icon(
+              Icons.train,
             ),
-            Divider(
-              thickness: 1,
-              color: Colors.blue,
+            title: const Text('Centre de controle technique'),
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ApiFrenchControleTechnique()));
+            },
+          ),
+          Divider(
+            thickness: 1,
+            color: Colors.blue,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.train,
             ),
-            ListTile(
-              leading: Icon(
-                Icons.train,
-              ),
-              title: const Text('Mes points'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const mespoints()));
-              },
+            title: const Text('Mes points'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const mespoints()));
+            },
+          ),
+          Divider(
+            thickness: 1,
+            color: Colors.blue,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.home,
             ),
-            Divider(
-              thickness: 1,
-              color: Colors.blue,
+            title: const Text('Badge Parking Clonage'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const webview3()));
+            },
+          ),
+          Divider(
+            thickness: 1,
+            color: Colors.blue,
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.home,
             ),
-            ListTile(
-              leading: Icon(
-                Icons.home,
-              ),
-              title: const Text('Badge Parking Clonage'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const webview3()));
-              },
-            ),
-            Divider(
-              thickness: 1,
-              color: Colors.blue,
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.home,
-              ),
-              title: const Text('Paramètres'),
-              onTap: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const screenparam()));
-              },
-            ),
-            Divider(
-              thickness: 1,
-              color: Colors.blue,
-            ),
-          ],
-        ),
+            title: const Text('Paramètres'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const screenparam()));
+            },
+          ),
+          Divider(
+            thickness: 1,
+            color: Colors.blue,
+          ),
+        ],
+      ),
     );
   }
 }
