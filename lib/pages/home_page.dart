@@ -11,6 +11,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String Paybyphone_content = "";
   final GlobalKey webViewKey = GlobalKey();
 
   InAppWebViewController? webViewController;
@@ -37,6 +38,9 @@ class _HomePageState extends State<HomePage> {
               callback: (args) {
                 log("received data from web: $args");
                 //Show snackbar
+                setState(() {
+                  Paybyphone_content = args[0];
+                });
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(args[0]),
