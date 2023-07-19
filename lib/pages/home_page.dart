@@ -1,73 +1,62 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:parking/widgets/parking_browser.dart';
 
-class HomePage extends StatefulWidget {
+import '../domain/cubits/navigation_cubit.dart';
+import '../widgets/live_map.dart';
+
+class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
-  @override
-  State<HomePage> createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  String Paybyphone_content = "";
-  final GlobalKey webViewKey = GlobalKey();
-
-  InAppWebViewController? webViewController;
-  InAppWebViewSettings settings = InAppWebViewSettings(
-    useShouldOverrideUrlLoading: true,
-    mediaPlaybackRequiresUserGesture: false,
-    allowsInlineMediaPlayback: true,
-    iframeAllow: "camera; microphone",
-    iframeAllowFullscreen: true,
-  );
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: InAppWebView(
-        key: webViewKey,
-        initialUrlRequest: URLRequest(
-          url: WebUri("https://m2.paybyphone.fr/"),
+      body: SafeArea(
+        child: BlocBuilder<NavigationCubit, AppPage>(
+          builder: (context, page) {
+            switch (page) {
+              case AppPage.home:
+                return const Placeholder();
+              case AppPage.parking:
+                return const ParkingBrowser();
+              case AppPage.map:
+                return const LiveMap();
+            }
+          },
         ),
-        onWebViewCreated: (controller) {
-          log("onWebViewCreated");
-          controller.addJavaScriptHandler(
-              handlerName: 'receiveDataFromWeb',
-              callback: (args) {
-                log("received data from web: $args");
-                //Show snackbar
-                setState(() {
-                  Paybyphone_content = args[0];
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(args[0]),
-                  ),
-                );
-                return {
-                  'message': 'success',
-                };
-              });
-        },
-        onLoadStop: (controller, url) {
-          log("onLoadStop $url");
-          if (url.toString().contains("parking")) {
-            log("parking page let's evaluate the js code");
-            controller.evaluateJavascript(source: """
-              console.log("evaluateJavascript");          
-              var observer = new MutationObserver(function(mutationsList, observer) {
-              var element = document.querySelector('[data-testid="activeParkingSession"]');
-              if (element) {
-                  window.flutter_inappwebview.callHandler('receiveDataFromWeb', element.innerHTML);
-                  observer.disconnect();
-                }
-              });
-    
-              observer.observe(document, { childList: true, subtree: true });
-            """);
-          }
+      ),
+      bottomNavigationBar: BlocBuilder<NavigationCubit, AppPage>(
+        builder: (context, page) {
+          return BottomNavigationBar(
+            currentIndex: page.index,
+            onTap: (index) {
+              switch (index) {
+                case 0:
+                  context.read<NavigationCubit>().showHomePage();
+                  break;
+                case 1:
+                  context.read<NavigationCubit>().showParkingPage();
+                  break;
+                case 2:
+                  context.read<NavigationCubit>().showMapPage();
+                  break;
+              }
+            },
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: "Home",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.location_on),
+                label: "Parking",
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.map),
+                label: "Map",
+              ),
+            ],
+          );
         },
       ),
     );

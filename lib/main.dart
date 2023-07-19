@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:parking/pages/home_page.dart';
+
+import 'domain/cubits/navigation_cubit.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,13 +21,20 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: const SafeArea(
-        child: HomePage(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<NavigationCubit>(
+          create: (context) => NavigationCubit(),
+        ),
+      ],
+      child: MaterialApp(
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: const SafeArea(
+          child: HomePage(),
+        ),
       ),
     );
   }
