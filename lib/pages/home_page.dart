@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parking/widgets/parking_browser.dart';
 
-import '../domain/cubits/navigation_cubit.dart';
+import '../application/cubits/navigation_cubit.dart';
 import '../widgets/live_map.dart';
 
 class HomePage extends StatelessWidget {

@@ -7,7 +7,7 @@ enum AppPage {
 }
 
 class NavigationCubit extends Cubit<AppPage> {
-  NavigationCubit() : super(AppPage.home);
+  NavigationCubit() : super(AppPage.map);
 
   void showHomePage() => emit(AppPage.home);
   void showParkingPage() => emit(AppPage.parking);
