@@ -43,6 +43,35 @@ class LiveMap extends StatelessWidget {
             ),
             BlocBuilder<LocationCubit, UserLocation>(
               builder: (context, state) {
+                if (state.polylines != null) {
+                  List<Polyline> polylines = [];
+                  for (int i = 0; i < state.polylines!.length - 1; i++) {
+                    polylines.add(
+                      Polyline(
+                        points: [
+                          LatLng(
+                            state.polylines![i].latitude,
+                            state.polylines![i].longitude,
+                          ),
+                          LatLng(
+                            state.polylines![i + 1].latitude,
+                            state.polylines![i + 1].longitude,
+                          ),
+                        ],
+                        strokeWidth: 10.0,
+                        color: Colors.blue,
+                      ),
+                    );
+                  }
+                  return PolylineLayer(
+                    polylines: polylines,
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
+            BlocBuilder<LocationCubit, UserLocation>(
+              builder: (context, state) {
                 if (state.currentLocation == null) {
                   return const SizedBox.shrink();
                 }
@@ -88,7 +117,7 @@ class LiveMap extends StatelessWidget {
                   ],
                 );
               },
-            )
+            ),
           ],
         ),
       ],
