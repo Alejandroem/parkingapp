@@ -26,6 +26,11 @@ class LiveMap extends StatelessWidget {
                 InteractiveFlag.pinchMove |
                 InteractiveFlag.pinchZoom |
                 InteractiveFlag.doubleTapZoom,
+            onTap: (tapPosition, point) {
+              context
+                  .read<LocationCubit>()
+                  .updateLastTappedLocation(point.latitude, point.longitude);
+            },
           ),
           children: [
             TileLayer(
@@ -49,6 +54,30 @@ class LiveMap extends StatelessWidget {
                       point: LatLng(
                         state.currentLocation!.latitude,
                         state.currentLocation!.longitude,
+                      ),
+                      builder: (ctx) => const Icon(
+                        Icons.location_on,
+                        color: Colors.red,
+                        size: 40,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            BlocBuilder<LocationCubit, UserLocation>(
+              builder: (context, state) {
+                if (state.lastTappedLocation == null) {
+                  return const SizedBox.shrink();
+                }
+                return MarkerLayer(
+                  markers: [
+                    Marker(
+                      width: 80.0,
+                      height: 80.0,
+                      point: LatLng(
+                        state.lastTappedLocation!.latitude,
+                        state.lastTappedLocation!.longitude,
                       ),
                       builder: (ctx) => const Icon(
                         Icons.location_on,

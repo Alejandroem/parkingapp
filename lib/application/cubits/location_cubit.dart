@@ -24,10 +24,13 @@ class LocationCubit extends Cubit<UserLocation> {
     });
   }
 
-  void updateLastTappedLocation(LatitudeLongitude lastTappedLocation) {
+  void updateLastTappedLocation(double latitude, double longitude) {
     emit(
       UserLocation(
-        lastTappedLocation: lastTappedLocation,
+        lastTappedLocation: LatitudeLongitude(
+          latitude,
+          longitude,
+        ),
         currentLocation: state.currentLocation,
       ),
     );
