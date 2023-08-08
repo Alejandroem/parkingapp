@@ -32,10 +32,14 @@ class _ParkingBrowserState extends State<ParkingBrowser> {
         onPressed: () {
           log("floatingActionButton onPressed");
           webViewController?.evaluateJavascript(source: """                
-                var element = document.querySelector('[data-testid="activeParkingSession"]');
-                if (element && element.innerHTML.includes("stop-button")) {
-                    window.flutter_inappwebview.callHandler('receiveDataFromWeb', element.innerHTML.replace( /(<([^>]+)>)/ig, ''));
-                  }    
+                var elements = document.querySelectorAll('[data-testid="activeParkingSession"]');
+                if (elements && elements.length > 0) {
+                  var texts = [];
+                  for (var i = 0; i < elements.length; i++) {
+                      texts.push(elements[i].innerHTML.replace( /(<([^>]+)>)/ig, ''));
+                  }
+                  window.flutter_inappwebview.callHandler('receiveDataFromWeb', texts);
+                }    
               """);
         },
         child: const Icon(Icons.refresh),
@@ -54,11 +58,11 @@ class _ParkingBrowserState extends State<ParkingBrowser> {
                 log("received data from web: $args");
                 //Show snackbar
                 setState(() {
-                  paybyphoneContent = args[0];
+                  paybyphoneContent = args[0].toString();
                 });
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text(args[0]),
+                    content: Text(args[0].toString()),
                   ),
                 );
                 return {
@@ -73,13 +77,16 @@ class _ParkingBrowserState extends State<ParkingBrowser> {
             controller.evaluateJavascript(source: """
                 console.log("evaluateJavascript");          
                 var observer = new MutationObserver(function(mutationsList, observer) {
-                var element = document.querySelector('[data-testid="activeParkingSession"]');
-                if (element && element.innerHTML.includes("stop-button")) {
-                    window.flutter_inappwebview.callHandler('receiveDataFromWeb', element.innerHTML.replace( /(<([^>]+)>)/ig, ''));
+                  var elements = document.querySelectorAll('[data-testid="activeParkingSession"]');
+                  if (elements && elements.length > 0) {
+                    var texts = [];
+                    for (var i = 0; i < elements.length; i++) {
+                        texts.push(elements[i].innerHTML.replace( /(<([^>]+)>)/ig, ''));
+                    }
+                    window.flutter_inappwebview.callHandler('receiveDataFromWeb', texts);
                     observer.disconnect();
-                  }
+                  } 
                 });
-      
                 observer.observe(document, { childList: true, subtree: true });
               """);
           }
