@@ -27,49 +27,64 @@ class _ParkingBrowserState extends State<ParkingBrowser> {
 
   @override
   Widget build(BuildContext context) {
-    return InAppWebView(
-      key: webViewKey,
-      initialUrlRequest: URLRequest(
-        url: WebUri("https://m2.paybyphone.fr/"),
+    return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          log("floatingActionButton onPressed");
+          webViewController?.evaluateJavascript(source: """                
+                var element = document.querySelector('[data-testid="activeParkingSession"]');
+                if (element && element.innerHTML.includes("stop-button")) {
+                    window.flutter_inappwebview.callHandler('receiveDataFromWeb', element.innerHTML.replace( /(<([^>]+)>)/ig, ''));
+                  }    
+              """);
+        },
+        child: const Icon(Icons.refresh),
       ),
-      onWebViewCreated: (controller) {
-        log("onWebViewCreated");
-        controller.addJavaScriptHandler(
-            handlerName: 'receiveDataFromWeb',
-            callback: (args) {
-              log("received data from web: $args");
-              //Show snackbar
-              setState(() {
-                paybyphoneContent = args[0];
+      body: InAppWebView(
+        key: webViewKey,
+        initialUrlRequest: URLRequest(
+          url: WebUri("https://m2.paybyphone.fr/"),
+        ),
+        onWebViewCreated: (controller) {
+          webViewController = controller;
+          log("onWebViewCreated");
+          controller.addJavaScriptHandler(
+              handlerName: 'receiveDataFromWeb',
+              callback: (args) {
+                log("received data from web: $args");
+                //Show snackbar
+                setState(() {
+                  paybyphoneContent = args[0];
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(args[0]),
+                  ),
+                );
+                return {
+                  'message': 'success',
+                };
               });
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(args[0]),
-                ),
-              );
-              return {
-                'message': 'success',
-              };
-            });
-      },
-      onLoadStop: (controller, url) {
-        log("onLoadStop $url");
-        if (url.toString().contains("parking")) {
-          log("parking page let's evaluate the js code");
-          controller.evaluateJavascript(source: """
-              console.log("evaluateJavascript");          
-              var observer = new MutationObserver(function(mutationsList, observer) {
-              var element = document.querySelector('[data-testid="activeParkingSession"]');
-              if (element) {
-                  window.flutter_inappwebview.callHandler('receiveDataFromWeb', element.innerHTML);
-                  observer.disconnect();
-                }
-              });
-    
-              observer.observe(document, { childList: true, subtree: true });
-            """);
-        }
-      },
+        },
+        onLoadStop: (controller, url) {
+          log("onLoadStop $url");
+          if (url.toString().contains("parking")) {
+            log("parking page let's evaluate the js code");
+            controller.evaluateJavascript(source: """
+                console.log("evaluateJavascript");          
+                var observer = new MutationObserver(function(mutationsList, observer) {
+                var element = document.querySelector('[data-testid="activeParkingSession"]');
+                if (element && element.innerHTML.includes("stop-button")) {
+                    window.flutter_inappwebview.callHandler('receiveDataFromWeb', element.innerHTML.replace( /(<([^>]+)>)/ig, ''));
+                    observer.disconnect();
+                  }
+                });
+      
+                observer.observe(document, { childList: true, subtree: true });
+              """);
+          }
+        },
+      ),
     );
   }
 }

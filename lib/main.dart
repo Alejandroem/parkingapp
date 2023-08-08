@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:parking/application/cubits/movement_cubit.dart';
 import 'package:parking/domain/services/directions_service.dart';
 import 'package:parking/pages/home_page.dart';
 
@@ -49,6 +50,11 @@ class MyApp extends StatelessWidget {
             create: (context) => LocationCubit(
               context.read<LocationService>(),
               context.read<DirectionsService>(),
+            ),
+          ),
+          BlocProvider<MovementCubit>(
+            create: (context) => MovementCubit(
+              context.read<LocationService>(),
             ),
           ),
         ],

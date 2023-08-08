@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:parking/application/cubits/location_cubit.dart';
+import 'package:parking/application/cubits/movement_cubit.dart';
 import 'package:parking/domain/models/user_locations.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:parking/widgets/dotted_border_circle.dart';
 
 import '../constants.dart';
 
@@ -94,6 +96,32 @@ class LiveMap extends StatelessWidget {
                 );
               },
             ),
+            BlocBuilder<MovementCubit, MovementState>(
+              builder: (context, state) {
+                if (state.speed > 1) {
+                  return MarkerLayer(
+                    markers: [
+                      Marker(
+                        width: 80.0,
+                        height: 80.0,
+                        point: LatLng(
+                          state.lastKnownLocation.latitude,
+                          state.lastKnownLocation.longitude,
+                        ),
+                        builder: (ctx) => Icon(
+                          state.lastParkedLocation == null
+                              ? Icons.directions_car
+                              : Icons.directions_walk,
+                          color: Colors.red,
+                          size: 40,
+                        ),
+                      ),
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            ),
             BlocBuilder<LocationCubit, UserLocation>(
               builder: (context, state) {
                 if (state.lastTappedLocation == null) {
@@ -120,6 +148,26 @@ class LiveMap extends StatelessWidget {
             ),
           ],
         ),
+        BlocBuilder<MovementCubit, MovementState>(
+          builder: (context, state) {
+            if (state.speed > 1) {
+              return Positioned(
+                left: 10,
+                bottom: 20,
+                child: DottedBorderCircle(
+                  radius: 45,
+                  fillColor: Colors.black,
+                  borderColor: 99 > 100 ? Colors.red : Colors.white,
+                  borderWidth: 4,
+                  dotSpacing: 2.5,
+                  velocity: "${(state.speed).toStringAsFixed(0)} Km/h",
+                  maxSpeed: 100,
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        )
       ],
     );
   }

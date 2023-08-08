@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:parking/constants.dart';
 import 'package:parking/domain/models/geocoded_location.dart';
 import 'package:parking/domain/models/lat_lng.dart';
+import 'package:parking/domain/models/live_location.dart';
 import 'package:parking/domain/services/location_service.dart';
 
 class GeolocationLocationService extends LocationService {
@@ -39,7 +40,7 @@ class GeolocationLocationService extends LocationService {
   }
 
   @override
-  Stream<LatitudeLongitude?> getLiveLocation() {
+  Stream<LiveLocation?> getLiveLocation() {
     const LocationSettings locationSettings = LocationSettings(
       accuracy: LocationAccuracy.high,
       distanceFilter: 100,
@@ -49,7 +50,11 @@ class GeolocationLocationService extends LocationService {
       if (position == null) {
         return null;
       }
-      return LatitudeLongitude(position.latitude, position.longitude);
+
+      return LiveLocation(
+        location: LatitudeLongitude(position.latitude, position.longitude),
+        speed: position.speed,
+      );
     });
   }
 
