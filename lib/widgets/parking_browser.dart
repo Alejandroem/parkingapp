@@ -75,8 +75,7 @@ class _ParkingBrowserState extends State<ParkingBrowser> {
           if (url.toString().contains("parking")) {
             log("parking page let's evaluate the js code");
             controller.evaluateJavascript(source: """
-                console.log("evaluateJavascript");          
-                var observer = new MutationObserver(function(mutationsList, observer) {
+                function getData(){
                   var elements = document.querySelectorAll('[data-testid="activeParkingSession"]');
                   if (elements && elements.length > 0) {
                     var texts = [];
@@ -84,10 +83,10 @@ class _ParkingBrowserState extends State<ParkingBrowser> {
                         texts.push(elements[i].innerHTML.replace( /(<([^>]+)>)/ig, ''));
                     }
                     window.flutter_inappwebview.callHandler('receiveDataFromWeb', texts);
-                    observer.disconnect();
-                  } 
-                });
-                observer.observe(document, { childList: true, subtree: true });
+                  }
+                  setTimeout(getData, 1000);
+                }
+                setTimeout(getData, 1000);
               """);
           }
         },
