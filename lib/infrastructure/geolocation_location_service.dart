@@ -42,8 +42,8 @@ class GeolocationLocationService extends LocationService {
   @override
   Stream<LiveLocation?> getLiveLocation() {
     const LocationSettings locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.high,
-      distanceFilter: 100,
+      accuracy: LocationAccuracy.bestForNavigation,
+      distanceFilter: 0,
     );
     return Geolocator.getPositionStream(locationSettings: locationSettings)
         .map((Position? position) {

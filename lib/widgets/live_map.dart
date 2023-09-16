@@ -20,7 +20,7 @@ class LiveMap extends StatelessWidget {
           options: MapOptions(
             minZoom: 6,
             maxZoom: 18,
-            zoom: 10,
+            zoom: 18,
             center: AppConstants.myLocation,
             rotation: 0,
             interactiveFlags: InteractiveFlag.drag |
@@ -98,28 +98,40 @@ class LiveMap extends StatelessWidget {
             ),
             BlocBuilder<MovementCubit, MovementState>(
               builder: (context, state) {
-                if (state.speed > 1) {
-                  return MarkerLayer(
-                    markers: [
-                      Marker(
+                return MarkerLayer(
+                  markers: [
+                    ...(state.parkingPlaces ?? []).map(
+                      (e) => Marker(
                         width: 80.0,
                         height: 80.0,
                         point: LatLng(
-                          state.lastKnownLocation.latitude,
-                          state.lastKnownLocation.longitude,
+                          e.location.latitude,
+                          e.location.longitude,
                         ),
                         builder: (ctx) => Icon(
-                          state.lastParkedLocation == null
-                              ? Icons.directions_car
-                              : Icons.directions_walk,
-                          color: Colors.red,
+                          Icons.car_crash_rounded,
+                          color: e.accuracy == Accuracy.high
+                              ? Colors.red
+                              : Colors.yellow,
                           size: 40,
                         ),
                       ),
-                    ],
-                  );
-                }
-                return const SizedBox.shrink();
+                    ),
+                    Marker(
+                      width: 80.0,
+                      height: 80.0,
+                      point: LatLng(
+                        state.lastKnownLocation.latitude,
+                        state.lastKnownLocation.longitude,
+                      ),
+                      builder: (ctx) => const Icon(
+                        Icons.directions_car,
+                        color: Colors.blue,
+                        size: 40,
+                      ),
+                    ),
+                  ],
+                );
               },
             ),
             BlocBuilder<LocationCubit, UserLocation>(
