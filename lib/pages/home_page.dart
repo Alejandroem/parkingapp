@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:parking/domain/services/location_service.dart';
 import 'package:parking/widgets/parking_browser.dart';
 
 import '../application/cubits/navigation_cubit.dart';
@@ -20,7 +21,19 @@ class HomePage extends StatelessWidget {
               case AppPage.parking:
                 return const ParkingBrowser();
               case AppPage.map:
-                return const LiveMap();
+                return FutureBuilder(
+                  future: context.read<LocationService>().getLocation(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.done) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        return LiveMap(snapshot.data!);
+                      }
+                    }
+                    return const Center(
+                      child: CircularProgressIndicator(),
+                    );
+                  },
+                );
             }
           },
         ),

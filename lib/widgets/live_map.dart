@@ -8,9 +8,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:parking/widgets/dotted_border_circle.dart';
 
 import '../constants.dart';
+import '../domain/models/lat_lng.dart';
 
 class LiveMap extends StatelessWidget {
-  const LiveMap({super.key});
+  final LatitudeLongitude initialLocation;
+  const LiveMap(this.initialLocation, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,10 @@ class LiveMap extends StatelessWidget {
             minZoom: 6,
             maxZoom: 18,
             zoom: 18,
-            center: AppConstants.myLocation,
+            center: LatLng(
+              initialLocation.latitude,
+              initialLocation.longitude,
+            ),
             rotation: 0,
             interactiveFlags: InteractiveFlag.drag |
                 InteractiveFlag.flingAnimation |
