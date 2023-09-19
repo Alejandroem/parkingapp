@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:parking/application/cubits/movement_cubit.dart';
+import 'package:parking/domain/services/activity_service.dart';
 import 'package:parking/domain/services/directions_service.dart';
 import 'package:parking/pages/home_page.dart';
 
@@ -10,6 +11,7 @@ import 'application/cubits/location_cubit.dart';
 import 'application/cubits/navigation_cubit.dart';
 import 'domain/services/location_service.dart';
 import 'domain/services/traffic_service.dart';
+import 'infrastructure/device_activity_service.dart';
 import 'infrastructure/geolocation_location_service.dart';
 import 'infrastructure/mapbox_directions_service.dart';
 import 'infrastructure/mapbox_traffic_service.dart';
@@ -40,6 +42,9 @@ class MyApp extends StatelessWidget {
         RepositoryProvider<DirectionsService>(
           create: (context) => MapboxDirectionsService(),
         ),
+        RepositoryProvider<ActivityService>(
+          create: (context) => DeviceActivityService(),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -55,6 +60,7 @@ class MyApp extends StatelessWidget {
           BlocProvider<MovementCubit>(
             create: (context) => MovementCubit(
               context.read<LocationService>(),
+              context.read<ActivityService>(),
             ),
           ),
         ],

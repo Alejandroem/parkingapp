@@ -1,10 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:flutter_activity_recognition/flutter_activity_recognition.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parking/domain/models/lat_lng.dart';
 import 'package:parking/domain/models/live_location.dart';
+import 'package:parking/domain/models/user_activity.dart';
+import 'package:parking/domain/services/activity_service.dart';
 import 'package:parking/domain/services/location_service.dart';
 
 enum Accuracy {
@@ -28,10 +29,12 @@ class MovementState {
   double speed;
   double maxSpeed;
   LatitudeLongitude? lastParkedLocation;
+  DateTime? lastSwitchOfActivity;
   DateTime? lastParkedTime;
   DateTime? lastSwitchOfVelocity;
-  List<ParkingPlace>? parkingPlaces;
+  ParkingPlace? parkingPlace;
   DateTime? lastUpdate;
+  UserActivity? userActivity;
 
   MovementState({
     required this.lastKnownLocation,
@@ -40,7 +43,9 @@ class MovementState {
     this.lastParkedLocation,
     this.lastParkedTime,
     this.lastSwitchOfVelocity,
-    this.parkingPlaces,
+    this.lastSwitchOfActivity,
+    this.userActivity,
+    this.parkingPlace,
     this.lastUpdate,
   });
 
@@ -52,7 +57,9 @@ class MovementState {
     LatitudeLongitude? lastParkedLocation,
     DateTime? lastParkedTime,
     DateTime? lastSwitchOfVelocity,
-    List<ParkingPlace>? parkingPlaces,
+    DateTime? lastSwitchOfActivity,
+    ParkingPlace? parkingPlace,
+    UserActivity? userActivity,
     DateTime? lastUpdate,
   }) {
     return MovementState(
@@ -62,7 +69,9 @@ class MovementState {
       lastParkedLocation: lastParkedLocation ?? this.lastParkedLocation,
       lastParkedTime: lastParkedTime ?? this.lastParkedTime,
       lastSwitchOfVelocity: lastSwitchOfVelocity ?? this.lastSwitchOfVelocity,
-      parkingPlaces: parkingPlaces ?? this.parkingPlaces,
+      lastSwitchOfActivity: lastSwitchOfActivity ?? this.lastSwitchOfActivity,
+      parkingPlace: parkingPlace ?? this.parkingPlace,
+      userActivity: userActivity ?? this.userActivity,
       lastUpdate: lastUpdate ?? this.lastUpdate,
     );
   }
@@ -79,8 +88,10 @@ class MovementState {
           lastParkedLocation == other.lastParkedLocation &&
           lastParkedTime == other.lastParkedTime &&
           lastSwitchOfVelocity == other.lastSwitchOfVelocity &&
-          parkingPlaces == other.parkingPlaces &&
-          lastUpdate == other.lastUpdate;
+          parkingPlace == other.parkingPlace &&
+          lastUpdate == other.lastUpdate &&
+          lastSwitchOfActivity == other.lastSwitchOfActivity &&
+          userActivity == other.userActivity;
 
   @override
   int get hashCode => super.hashCode;
@@ -88,11 +99,10 @@ class MovementState {
 
 class MovementCubit extends Cubit<MovementState> {
   final LocationService _locationService;
-  FlutterActivityRecognition activityRecognition =
-      FlutterActivityRecognition.instance;
+  final ActivityService _activityService;
 
   StreamSubscription<LiveLocation?>? _liveLocationStreamSubscription;
-  StreamSubscription<Activity>? _activityStreamSubscription;
+  StreamSubscription<UserActivity?>? _activityStreamSubscription;
 
   //close cubit
   @override
@@ -102,8 +112,10 @@ class MovementCubit extends Cubit<MovementState> {
     super.close();
   }
 
-  MovementCubit(this._locationService)
-      : super(
+  MovementCubit(
+    this._locationService,
+    this._activityService,
+  ) : super(
           MovementState(
             lastKnownLocation: const LatitudeLongitude(0, 0),
             speed: 0,
@@ -126,93 +138,6 @@ class MovementCubit extends Cubit<MovementState> {
       );
       emit(newState);
     });
-  }
-
-  void requestPermissionsAndStartTracking() async {
-    await isPermissionGrants();
-    _activityStreamSubscription = activityRecognition.activityStream.listen(
-      (Activity event) {
-        log('ActivityStream: $event');
-        if (event.confidence == ActivityConfidence.MEDIUM ||
-            event.confidence == ActivityConfidence.HIGH) {
-          if (event.type == ActivityType.STILL) {
-            //LatitudeLongitude location = (await _locationService.getLocation());
-            log('ActivityStream: User is still at Latitude ${state.lastKnownLocation} Longitude ${state.lastKnownLocation}');
-            emit(
-              state.copyWith(
-                lastParkedLocation: state.lastKnownLocation,
-                lastParkedTime: DateTime.now(),
-                lastSwitchOfVelocity: DateTime.now(),
-                parkingPlaces: [
-                  ...(state.parkingPlaces ?? []),
-                  ParkingPlace(
-                    accuracy: ActivityConfidence.HIGH == event.confidence
-                        ? Accuracy.high
-                        : Accuracy.medium,
-                    time: DateTime.now(),
-                    location: state.lastKnownLocation,
-                  ),
-                ],
-                lastUpdate: DateTime.now(),
-              ),
-            );
-          } else if (event.type == ActivityType.WALKING ||
-              event.type == ActivityType.RUNNING ||
-              event.type == ActivityType.ON_BICYCLE ||
-              event.type == ActivityType.IN_VEHICLE) {
-            log('ActivityStream: User is moving');
-            emit(
-              state.copyWith(
-                lastParkedLocation: null,
-                lastParkedTime: null,
-                lastSwitchOfVelocity: DateTime.now(),
-                lastUpdate: DateTime.now(),
-              ),
-            );
-          }
-          return;
-        }
-      },
-      onError: (e) {
-        log('ActivityStream: $e');
-        emit(
-          state.copyWith(
-            lastParkedLocation: null,
-            lastParkedTime: null,
-            lastSwitchOfVelocity: DateTime.now(),
-          ),
-        );
-      },
-      onDone: () {
-        log('ActivityStream: Done');
-        emit(
-          state.copyWith(
-            lastParkedLocation: null,
-            lastParkedTime: null,
-            lastSwitchOfVelocity: DateTime.now(),
-          ),
-        );
-      },
-      cancelOnError: false,
-    );
-  }
-
-  Future<bool> isPermissionGrants() async {
-    // Check if the user has granted permission. If not, request permission.
-    PermissionRequestResult reqResult;
-    reqResult = await activityRecognition.checkPermission();
-    if (reqResult == PermissionRequestResult.PERMANENTLY_DENIED) {
-      log('Permission is permanently denied.');
-      return false;
-    } else if (reqResult == PermissionRequestResult.DENIED) {
-      reqResult = await activityRecognition.requestPermission();
-      if (reqResult != PermissionRequestResult.GRANTED) {
-        log('Permission is denied.');
-        return false;
-      }
-    }
-
-    return true;
   }
 
   void updateLastKnownLocation(LatitudeLongitude lastKnownLocation) {
@@ -253,5 +178,73 @@ class MovementCubit extends Cubit<MovementState> {
     }
     last10logs.add(s);
     return last10logs;
+  }
+
+  void requestPermissionsAndStartTracking() async {
+    await _activityService.askForActivityPermission();
+    _activityStreamSubscription = _activityService.getActivityStream().listen(
+      (event) {
+        if (userIsDriving(event)) {
+          updateLastSeenDrivingAndDeleteParkingTime(event);
+        }
+        if (userNotDrivingAfterDriving(event)) {
+          updateLastPossibleParkingLocation(event);
+        }
+        if (userHasNotBeenDrivingForFiveMinutes(event)) {
+          updateLastParkedTime(event);
+        }
+      },
+    );
+  }
+
+  bool userIsDriving(UserActivity? event) {
+    return event != null && event.type == UserActivityType.driving;
+  }
+
+  void updateLastSeenDrivingAndDeleteParkingTime(UserActivity? event) {
+    emit(
+      state.copyWith(
+        lastSwitchOfActivity: DateTime.now(),
+        lastParkedTime: null,
+        lastParkedLocation: null,
+        userActivity: event,
+      ),
+    );
+  }
+
+  bool userNotDrivingAfterDriving(UserActivity? event) {
+    return event != null &&
+        event.type == UserActivityType.notDriving &&
+        state.userActivity?.type == UserActivityType.driving;
+  }
+
+  void updateLastPossibleParkingLocation(UserActivity? event) {
+    emit(
+      state.copyWith(
+        lastSwitchOfActivity: DateTime.now(),
+        lastParkedTime: null,
+        lastParkedLocation: state.lastKnownLocation,
+        userActivity: event,
+      ),
+    );
+  }
+
+  bool userHasNotBeenDrivingForFiveMinutes(UserActivity? event) {
+    return event != null &&
+        event.type == UserActivityType.notDriving &&
+        state.userActivity?.type == UserActivityType.notDriving &&
+        state.lastParkedTime != null &&
+        DateTime.now().difference(state.lastParkedTime!) >
+            const Duration(minutes: 5);
+  }
+
+  void updateLastParkedTime(UserActivity? event) {
+    emit(
+      state.copyWith(
+        lastSwitchOfActivity: DateTime.now(),
+        lastParkedTime: DateTime.now(),
+        userActivity: event,
+      ),
+    );
   }
 }

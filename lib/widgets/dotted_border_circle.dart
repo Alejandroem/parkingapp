@@ -10,7 +10,7 @@ class DottedBorderCircle extends StatelessWidget {
   final double dotSpacing;
   final String velocity;
   final double maxSpeed;
-  final TextStyle velocityTextStyle = TextStyle(
+  final TextStyle velocityTextStyle = const TextStyle(
     color: Colors.white,
     fontSize: 20,
     fontWeight: FontWeight.bold,
@@ -88,7 +88,8 @@ class DottedCirclePainter extends CustomPainter {
 
     // Draw velocity text
     final textPainter = TextPainter(
-      text: TextSpan(text: velocity, style: TextStyle(color: Colors.white)),
+      text:
+          TextSpan(text: velocity, style: const TextStyle(color: Colors.white)),
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();

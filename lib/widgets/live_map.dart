@@ -5,7 +5,6 @@ import 'package:parking/application/cubits/location_cubit.dart';
 import 'package:parking/application/cubits/movement_cubit.dart';
 import 'package:parking/domain/models/user_locations.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:parking/widgets/dotted_border_circle.dart';
 
 import '../constants.dart';
 import '../domain/models/lat_lng.dart';
@@ -105,23 +104,22 @@ class LiveMap extends StatelessWidget {
               builder: (context, state) {
                 return MarkerLayer(
                   markers: [
-                    ...(state.parkingPlaces ?? []).map(
-                      (e) => Marker(
+                    if (state.parkingPlace != null)
+                      Marker(
                         width: 80.0,
                         height: 80.0,
                         point: LatLng(
-                          e.location.latitude,
-                          e.location.longitude,
+                          state.parkingPlace!.location.latitude,
+                          state.parkingPlace!.location.longitude,
                         ),
                         builder: (ctx) => Icon(
                           Icons.car_crash_rounded,
-                          color: e.accuracy == Accuracy.high
+                          color: state.parkingPlace!.accuracy == Accuracy.high
                               ? Colors.red
                               : Colors.yellow,
                           size: 40,
                         ),
                       ),
-                    ),
                     Marker(
                       width: 80.0,
                       height: 80.0,
@@ -165,7 +163,7 @@ class LiveMap extends StatelessWidget {
             ),
           ],
         ),
-        BlocBuilder<MovementCubit, MovementState>(
+        /* BlocBuilder<MovementCubit, MovementState>(
           builder: (context, state) {
             if (state.speed > 1) {
               return Positioned(
@@ -184,7 +182,7 @@ class LiveMap extends StatelessWidget {
             }
             return const SizedBox.shrink();
           },
-        )
+        ) */
       ],
     );
   }
