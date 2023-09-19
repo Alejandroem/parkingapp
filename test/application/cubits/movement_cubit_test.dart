@@ -13,6 +13,7 @@ import 'package:parking/domain/services/location_service.dart';
 import 'movement_cubit_test.mocks.dart';
 
 //test for movement cubit
+class MockDateTime extends Mock implements DateTime {}
 
 @GenerateNiceMocks([MockSpec<ActivityService>(), MockSpec<LocationService>()])
 void main() {
@@ -104,12 +105,26 @@ void main() {
               if (count == 0) {
                 return UserActivity(
                   type: UserActivityType.driving,
-                  timestamp: DateTime.now(),
+                  timestamp: DateTime(
+                    2021,
+                    1,
+                    1,
+                    0,
+                    0,
+                    0,
+                  ),
                 );
               } else {
                 return UserActivity(
                   type: UserActivityType.notDriving,
-                  timestamp: DateTime.now(),
+                  timestamp: DateTime(
+                    2021,
+                    1,
+                    1,
+                    0,
+                    count + 1,
+                    0,
+                  ),
                 );
               }
             },
@@ -121,48 +136,53 @@ void main() {
         fakeAsync.elapse(const Duration(milliseconds: 1));
 
         fakeAsync.elapse(const Duration(minutes: 1));
-        expectLater(
+        expect(
           cubit.state.lastSwitchOfActivity,
           isNotNull,
         );
-        expectLater(
+        expect(
           cubit.state.userActivity,
           isNotNull,
         );
-        expectLater(
+        expect(
           cubit.state.userActivity?.type,
           equals(UserActivityType.driving),
         );
 
+        expect(
+          cubit.state.lastParkedLocation,
+          isNull,
+        );
+
         fakeAsync.elapse(const Duration(minutes: 1));
 
-        expectLater(
+        expect(
           cubit.state.userActivity?.type,
           equals(UserActivityType.notDriving),
         );
-        expectLater(
+        expect(
           cubit.state.lastKnownLocation,
           isNotNull,
         );
-        expectLater(
+        expect(
           cubit.state.lastKnownLocation.latitude,
           equals(1),
         );
-        expectLater(
+        expect(
           cubit.state.lastKnownLocation.longitude,
           equals(1),
         );
 
-        fakeAsync.elapse(const Duration(minutes: 10));
+        fakeAsync.elapse(const Duration(minutes: 6));
 
-        expectLater(
+        expect(
           cubit.state.lastParkedLocation,
           isNotNull,
           reason:
               'Should have a parking location because was updated when the last activity was driving and it changed',
         );
 
-        expectLater(
+        expect(
           cubit.state.lastParkedTime,
           isNotNull,
           reason:

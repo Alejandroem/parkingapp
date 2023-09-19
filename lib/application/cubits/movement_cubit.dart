@@ -204,7 +204,7 @@ class MovementCubit extends Cubit<MovementState> {
   void updateLastSeenDrivingAndDeleteParkingTime(UserActivity? event) {
     emit(
       state.copyWith(
-        lastSwitchOfActivity: DateTime.now(),
+        lastSwitchOfActivity: event?.timestamp,
         lastParkedTime: null,
         lastParkedLocation: null,
         userActivity: event,
@@ -221,13 +221,10 @@ class MovementCubit extends Cubit<MovementState> {
   void updateLastPossibleParkingLocation(UserActivity? event) {
     emit(
       state.copyWith(
-        lastSwitchOfActivity: DateTime.now(),
+        lastSwitchOfActivity: event?.timestamp,
         lastParkedTime: null,
         lastParkedLocation: state.lastKnownLocation,
-        userActivity: UserActivity(
-          type: UserActivityType.notDriving,
-          timestamp: DateTime.now(),
-        ),
+        userActivity: event,
       ),
     );
   }
@@ -236,15 +233,15 @@ class MovementCubit extends Cubit<MovementState> {
     return event != null &&
         event.type == UserActivityType.notDriving &&
         state.userActivity?.type == UserActivityType.notDriving &&
-        DateTime.now().difference(state.lastSwitchOfActivity!) >
+        event.timestamp.difference(state.lastSwitchOfActivity!) >
             const Duration(minutes: 5);
   }
 
   void updateLastParkedTime(UserActivity? event) {
     emit(
       state.copyWith(
-        lastSwitchOfActivity: DateTime.now(),
-        lastParkedTime: DateTime.now(),
+        lastSwitchOfActivity: event!.timestamp,
+        lastParkedTime: event.timestamp,
         userActivity: event,
       ),
     );
