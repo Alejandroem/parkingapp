@@ -104,7 +104,8 @@ class LiveMap extends StatelessWidget {
               builder: (context, state) {
                 return MarkerLayer(
                   markers: [
-                    if (state.parkingPlace != null)
+                    if (state.parkingPlace != null &&
+                        state.lastParkedTime != null)
                       Marker(
                         width: 80.0,
                         height: 80.0,

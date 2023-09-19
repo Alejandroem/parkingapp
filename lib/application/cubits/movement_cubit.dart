@@ -224,7 +224,10 @@ class MovementCubit extends Cubit<MovementState> {
         lastSwitchOfActivity: DateTime.now(),
         lastParkedTime: null,
         lastParkedLocation: state.lastKnownLocation,
-        userActivity: event,
+        userActivity: UserActivity(
+          type: UserActivityType.notDriving,
+          timestamp: DateTime.now(),
+        ),
       ),
     );
   }
@@ -233,8 +236,7 @@ class MovementCubit extends Cubit<MovementState> {
     return event != null &&
         event.type == UserActivityType.notDriving &&
         state.userActivity?.type == UserActivityType.notDriving &&
-        state.lastParkedTime != null &&
-        DateTime.now().difference(state.lastParkedTime!) >
+        DateTime.now().difference(state.lastSwitchOfActivity!) >
             const Duration(minutes: 5);
   }
 
