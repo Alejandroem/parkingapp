@@ -7,13 +7,16 @@
 
 //import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:parking/main.dart';
 
+import 'package:parking/widgets/live_map.dart';
+
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('Test Live Map', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
+    //wait for time
+    expect(find.byType(LiveMap, skipOffstage: false), findsOneWidget);
 
     /* // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
@@ -26,6 +29,5 @@ void main() {
     // Verify that our counter has incremented.
     expect(find.text('0'), findsNothing);
     expect(find.text('1'), findsOneWidget); */
-    expect(true, true);
   });
 }

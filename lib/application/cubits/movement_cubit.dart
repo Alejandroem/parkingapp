@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parking/domain/models/lat_lng.dart';
 import 'package:parking/domain/models/live_location.dart';
@@ -32,7 +33,6 @@ class MovementState {
   DateTime? lastSwitchOfActivity;
   DateTime? lastParkedTime;
   DateTime? lastSwitchOfVelocity;
-  ParkingPlace? parkingPlace;
   DateTime? lastUpdate;
   UserActivity? userActivity;
 
@@ -45,7 +45,6 @@ class MovementState {
     this.lastSwitchOfVelocity,
     this.lastSwitchOfActivity,
     this.userActivity,
-    this.parkingPlace,
     this.lastUpdate,
   });
 
@@ -58,7 +57,6 @@ class MovementState {
     DateTime? lastParkedTime,
     DateTime? lastSwitchOfVelocity,
     DateTime? lastSwitchOfActivity,
-    ParkingPlace? parkingPlace,
     UserActivity? userActivity,
     DateTime? lastUpdate,
   }) {
@@ -70,7 +68,6 @@ class MovementState {
       lastParkedTime: lastParkedTime ?? this.lastParkedTime,
       lastSwitchOfVelocity: lastSwitchOfVelocity ?? this.lastSwitchOfVelocity,
       lastSwitchOfActivity: lastSwitchOfActivity ?? this.lastSwitchOfActivity,
-      parkingPlace: parkingPlace ?? this.parkingPlace,
       userActivity: userActivity ?? this.userActivity,
       lastUpdate: lastUpdate ?? this.lastUpdate,
     );
@@ -88,13 +85,27 @@ class MovementState {
           lastParkedLocation == other.lastParkedLocation &&
           lastParkedTime == other.lastParkedTime &&
           lastSwitchOfVelocity == other.lastSwitchOfVelocity &&
-          parkingPlace == other.parkingPlace &&
           lastUpdate == other.lastUpdate &&
           lastSwitchOfActivity == other.lastSwitchOfActivity &&
           userActivity == other.userActivity;
 
   @override
+  // ignore: unnecessary_overrides
   int get hashCode => super.hashCode;
+
+  MovementState clearParkingTimeAndLocation() {
+    return MovementState(
+      lastKnownLocation: lastKnownLocation,
+      speed: speed,
+      maxSpeed: maxSpeed,
+      lastParkedLocation: null,
+      lastParkedTime: null,
+      lastSwitchOfVelocity: lastSwitchOfVelocity,
+      lastSwitchOfActivity: lastSwitchOfActivity,
+      userActivity: userActivity,
+      lastUpdate: lastUpdate,
+    );
+  }
 }
 
 class MovementCubit extends Cubit<MovementState> {
@@ -122,7 +133,7 @@ class MovementCubit extends Cubit<MovementState> {
             maxSpeed: 0,
           ),
         ) {
-    subscribeToLocationEvents();
+    //subscribeToLocationEvents();
     requestPermissionsAndStartTracking();
   }
 
@@ -182,19 +193,65 @@ class MovementCubit extends Cubit<MovementState> {
 
   void requestPermissionsAndStartTracking() async {
     await _activityService.askForActivityPermission();
-    _activityStreamSubscription = _activityService.getActivityStream().listen(
-      (event) {
-        if (userIsDriving(event)) {
-          updateLastSeenDrivingAndDeleteParkingTime(event);
-        }
-        if (userNotDrivingAfterDriving(event)) {
-          updateLastPossibleParkingLocation(event);
-        }
-        if (userHasNotBeenDrivingForFiveMinutes(event)) {
-          updateLastParkedTime(event);
+    //_activityStreamSubscription = _activityService.getActivityStream().listen(
+    Stream<UserActivity> fakeStream = Stream<UserActivity>.periodic(
+      const Duration(seconds: 10),
+      (count) {
+        log('activityStream: $count');
+
+        int lastDigitOfCount = count % 10;
+        if (lastDigitOfCount < 5) {
+          //driving
+          return UserActivity(
+            type: UserActivityType.driving,
+            timestamp: DateTime.now(),
+          );
+        } else {
+          //not driving
+          return UserActivity(
+            type: UserActivityType.notDriving,
+            timestamp: DateTime.now(),
+          );
         }
       },
     );
+
+    if (kDebugMode) {
+      _activityStreamSubscription = fakeStream.listen(
+        onEvent,
+        onError: (e) {
+          log('activityStream: $e');
+        },
+        onDone: () {
+          log('activityStream: done');
+        },
+      );
+    } else {
+      _activityStreamSubscription = _activityService.getActivityStream().listen(
+        onEvent,
+        onError: (e) {
+          log('activityStream: $e');
+        },
+        onDone: () {
+          log('activityStream: done');
+        },
+      );
+    }
+  }
+
+  void onEvent(event) {
+    log('MovementCubit: $event');
+    log('MovementCubit: ${event.timestamp}');
+    log('MovementCubit: ${event.type}');
+    if (userIsDriving(event)) {
+      updateLastSeenDrivingAndDeleteParkingTime(event);
+    }
+    if (userNotDrivingAfterDriving(event)) {
+      updateLastPossibleParkingLocation(event);
+    }
+    if (userHasNotBeenDrivingForFiveMinutes(event)) {
+      updateLastParkedTime(event);
+    }
   }
 
   bool userIsDriving(UserActivity? event) {
@@ -202,6 +259,7 @@ class MovementCubit extends Cubit<MovementState> {
   }
 
   void updateLastSeenDrivingAndDeleteParkingTime(UserActivity? event) {
+    log('updateLastSeenDrivingAndDeleteParkingTime');
     emit(
       state.copyWith(
         lastSwitchOfActivity: event?.timestamp,
@@ -210,6 +268,7 @@ class MovementCubit extends Cubit<MovementState> {
         userActivity: event,
       ),
     );
+    emit(state.clearParkingTimeAndLocation());
   }
 
   bool userNotDrivingAfterDriving(UserActivity? event) {
@@ -218,12 +277,14 @@ class MovementCubit extends Cubit<MovementState> {
         state.userActivity?.type == UserActivityType.driving;
   }
 
-  void updateLastPossibleParkingLocation(UserActivity? event) {
+  void updateLastPossibleParkingLocation(UserActivity? event) async {
+    log('updateLastPossibleParkingLocation');
+    LatitudeLongitude location = await _locationService.getLocation();
     emit(
       state.copyWith(
         lastSwitchOfActivity: event?.timestamp,
         lastParkedTime: null,
-        lastParkedLocation: state.lastKnownLocation,
+        lastParkedLocation: location,
         userActivity: event,
       ),
     );
@@ -234,10 +295,13 @@ class MovementCubit extends Cubit<MovementState> {
         event.type == UserActivityType.notDriving &&
         state.userActivity?.type == UserActivityType.notDriving &&
         event.timestamp.difference(state.lastSwitchOfActivity!) >
-            const Duration(minutes: 5);
+            (kDebugMode
+                ? const Duration(seconds: 30)
+                : const Duration(minutes: 5));
   }
 
   void updateLastParkedTime(UserActivity? event) {
+    log('updateLastParkedTime');
     emit(
       state.copyWith(
         lastSwitchOfActivity: event!.timestamp,

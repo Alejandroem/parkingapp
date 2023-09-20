@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:parking/application/cubits/location_cubit.dart';
 import 'package:parking/application/cubits/movement_cubit.dart';
 import 'package:parking/domain/models/user_locations.dart';
+// ignore: depend_on_referenced_packages
 import 'package:latlong2/latlong.dart';
 
 import '../constants.dart';
@@ -47,7 +48,7 @@ class LiveMap extends StatelessWidget {
                 'accessToken': AppConstants.mapBoxAccessToken,
               },
             ),
-            BlocBuilder<LocationCubit, UserLocation>(
+            /* BlocBuilder<LocationCubit, UserLocation>(
               builder: (context, state) {
                 if (state.polylines != null) {
                   List<Polyline> polylines = [];
@@ -75,8 +76,8 @@ class LiveMap extends StatelessWidget {
                 }
                 return const SizedBox.shrink();
               },
-            ),
-            BlocBuilder<LocationCubit, UserLocation>(
+            ), */
+            /* BlocBuilder<LocationCubit, UserLocation>(
               builder: (context, state) {
                 if (state.currentLocation == null) {
                   return const SizedBox.shrink();
@@ -99,46 +100,34 @@ class LiveMap extends StatelessWidget {
                   ],
                 );
               },
-            ),
+            ), */
             BlocBuilder<MovementCubit, MovementState>(
               builder: (context, state) {
-                return MarkerLayer(
-                  markers: [
-                    if (state.parkingPlace != null &&
-                        state.lastParkedTime != null)
-                      Marker(
-                        width: 80.0,
-                        height: 80.0,
-                        point: LatLng(
-                          state.parkingPlace!.location.latitude,
-                          state.parkingPlace!.location.longitude,
-                        ),
-                        builder: (ctx) => Icon(
-                          Icons.car_crash_rounded,
-                          color: state.parkingPlace!.accuracy == Accuracy.high
-                              ? Colors.red
-                              : Colors.yellow,
-                          size: 40,
-                        ),
-                      ),
+                List<Marker> markers = [];
+                if (state.lastParkedLocation != null &&
+                    state.lastParkedTime != null) {
+                  markers.add(
                     Marker(
                       width: 80.0,
                       height: 80.0,
                       point: LatLng(
-                        state.lastKnownLocation.latitude,
-                        state.lastKnownLocation.longitude,
+                        state.lastParkedLocation!.latitude,
+                        state.lastParkedLocation!.longitude,
                       ),
                       builder: (ctx) => const Icon(
-                        Icons.directions_car,
-                        color: Colors.blue,
+                        Icons.local_parking,
+                        color: Colors.red,
                         size: 40,
                       ),
                     ),
-                  ],
+                  );
+                }
+                return MarkerLayer(
+                  markers: markers,
                 );
               },
             ),
-            BlocBuilder<LocationCubit, UserLocation>(
+            /*  BlocBuilder<LocationCubit, UserLocation>(
               builder: (context, state) {
                 if (state.lastTappedLocation == null) {
                   return const SizedBox.shrink();
@@ -161,8 +150,30 @@ class LiveMap extends StatelessWidget {
                   ],
                 );
               },
-            ),
+            ), */
           ],
+        ),
+        SizedBox(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          child: BlocBuilder<MovementCubit, MovementState>(
+            builder: (context, state) {
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Speed: ${state.speed}"),
+                  Text("Max Speed: ${state.maxSpeed}"),
+                  Text("Last Parked Location: ${state.lastParkedLocation}"),
+                  Text("Last Parked Time: ${state.lastParkedTime}"),
+                  Text("Last Known Location: ${state.lastKnownLocation}"),
+                  Text("Last User Activity: ${state.userActivity?.type}"),
+                  Text(
+                      "Last User Activity time: ${state.userActivity?.timestamp}")
+                ],
+              );
+            },
+          ),
         ),
         /* BlocBuilder<MovementCubit, MovementState>(
           builder: (context, state) {

@@ -61,7 +61,7 @@ class HomePage extends StatelessWidget {
                 label: "Home",
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.location_on),
+                icon: Icon(Icons.local_parking),
                 label: "Parking",
               ),
               BottomNavigationBarItem(

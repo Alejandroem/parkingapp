@@ -16,7 +16,8 @@ class DottedBorderCircle extends StatelessWidget {
     fontWeight: FontWeight.bold,
   );
 
-  DottedBorderCircle({
+  const DottedBorderCircle({
+    super.key,
     required this.radius,
     required this.fillColor,
     required this.borderColor,

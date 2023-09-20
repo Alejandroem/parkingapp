@@ -90,9 +90,14 @@ void main() {
           (_) => Stream<LiveLocation>.fromIterable([
             LiveLocation(
               location: const LatitudeLongitude(1, 1),
-              speed: 30, // You can change this value
+              speed: 30,
             ),
           ]),
+        );
+        when(locationService.getLocation()).thenAnswer(
+          (_) => Future.value(
+            const LatitudeLongitude(1, 1),
+          ),
         );
 
         when(activityService.askForActivityPermission())
@@ -105,26 +110,78 @@ void main() {
               if (count == 0) {
                 return UserActivity(
                   type: UserActivityType.driving,
-                  timestamp: DateTime(
-                    2021,
-                    1,
-                    1,
-                    0,
-                    0,
-                    0,
-                  ),
+                  timestamp: DateTime(2021, 1, 1, 0, 0, 0),
                 );
               } else {
                 return UserActivity(
                   type: UserActivityType.notDriving,
-                  timestamp: DateTime(
-                    2021,
-                    1,
-                    1,
-                    0,
-                    count + 1,
-                    0,
-                  ),
+                  timestamp: DateTime(2021, 1, 1, 0, count + 1, 0),
+                );
+              }
+            },
+          );
+        });
+
+        cubit = MovementCubit(locationService, activityService);
+
+        fakeAsync.elapse(const Duration(milliseconds: 1));
+        fakeAsync.elapse(const Duration(minutes: 1));
+
+        expect(cubit.state.lastSwitchOfActivity, isNotNull);
+        expect(cubit.state.userActivity, isNotNull);
+        UserActivityType? currentActivity = cubit.state.userActivity?.type;
+        expect(currentActivity, equals(UserActivityType.driving));
+
+        expect(cubit.state.lastParkedLocation, isNull);
+
+        fakeAsync.elapse(const Duration(minutes: 1));
+        currentActivity = cubit.state.userActivity?.type;
+        expect(currentActivity, equals(UserActivityType.notDriving));
+        expect(cubit.state.lastParkedLocation, isNotNull);
+        expect(cubit.state.lastParkedLocation!.latitude, equals(1));
+        expect(cubit.state.lastParkedLocation!.longitude, equals(1));
+
+        fakeAsync.elapse(const Duration(minutes: 6));
+
+        expect(cubit.state.lastParkedLocation, isNotNull);
+        expect(cubit.state.lastParkedTime, isNotNull);
+      });
+    });
+
+    test(
+        'Test a drive where the user switches back and fort between driving and not driving in less than 1, 2, 3 minutes interval',
+        () {
+      fakeAsync((fakeAsync) {
+        when(locationService.getLiveLocation()).thenAnswer(
+          (_) => Stream<LiveLocation>.fromIterable([
+            LiveLocation(
+              location: const LatitudeLongitude(1, 1),
+              speed: 30,
+            ),
+          ]),
+        );
+        when(locationService.getLocation()).thenAnswer(
+          (_) => Future.value(
+            const LatitudeLongitude(1, 1),
+          ),
+        );
+
+        when(activityService.askForActivityPermission())
+            .thenAnswer((_) => Future.value(true));
+
+        when(activityService.getActivityStream()).thenAnswer((_) {
+          return Stream<UserActivity>.periodic(
+            const Duration(minutes: 1),
+            (count) {
+              if (count.isEven) {
+                return UserActivity(
+                  type: UserActivityType.driving,
+                  timestamp: DateTime(2021, 1, 1, 0, count + 1, 0),
+                );
+              } else {
+                return UserActivity(
+                  type: UserActivityType.notDriving,
+                  timestamp: DateTime(2021, 1, 1, 0, count + 1, 0),
                 );
               }
             },
@@ -135,59 +192,22 @@ void main() {
 
         fakeAsync.elapse(const Duration(milliseconds: 1));
 
-        fakeAsync.elapse(const Duration(minutes: 1));
-        expect(
-          cubit.state.lastSwitchOfActivity,
-          isNotNull,
-        );
-        expect(
-          cubit.state.userActivity,
-          isNotNull,
-        );
-        expect(
-          cubit.state.userActivity?.type,
-          equals(UserActivityType.driving),
-        );
-
-        expect(
-          cubit.state.lastParkedLocation,
-          isNull,
-        );
-
-        fakeAsync.elapse(const Duration(minutes: 1));
-
-        expect(
-          cubit.state.userActivity?.type,
-          equals(UserActivityType.notDriving),
-        );
-        expect(
-          cubit.state.lastKnownLocation,
-          isNotNull,
-        );
-        expect(
-          cubit.state.lastKnownLocation.latitude,
-          equals(1),
-        );
-        expect(
-          cubit.state.lastKnownLocation.longitude,
-          equals(1),
-        );
-
-        fakeAsync.elapse(const Duration(minutes: 6));
-
-        expect(
-          cubit.state.lastParkedLocation,
-          isNotNull,
-          reason:
-              'Should have a parking location because was updated when the last activity was driving and it changed',
-        );
-
-        expect(
-          cubit.state.lastParkedTime,
-          isNotNull,
-          reason:
-              'Should have a parking time because user has been on foot for 5 minutes',
-        );
+        for (var i = 0; i < 10; i++) {
+          fakeAsync.elapse(const Duration(minutes: 1));
+          expect(cubit.state.lastSwitchOfActivity, isNotNull);
+          expect(cubit.state.userActivity, isNotNull);
+          expect(cubit.state.lastSwitchOfActivity, isNotNull);
+          expect(
+              cubit.state.lastSwitchOfActivity!
+                  .difference(DateTime(2021, 1, 1, 0, i, 0)),
+              equals(const Duration(minutes: 1)));
+          UserActivityType? currentActivity = cubit.state.userActivity?.type;
+          if (i.isEven) {
+            expect(currentActivity, equals(UserActivityType.driving));
+          } else {
+            expect(currentActivity, equals(UserActivityType.notDriving));
+          }
+        }
       });
     });
   });
