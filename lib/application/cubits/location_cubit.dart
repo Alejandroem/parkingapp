@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_mapbox_navigation/flutter_mapbox_navigation.dart';
 import 'package:parking/domain/models/user_locations.dart';
 import 'package:parking/domain/services/directions_service.dart';
 
@@ -30,6 +33,17 @@ class LocationCubit extends Cubit<UserLocation> {
     });
   }
 
+  void updateCurrentLcoation() async {
+    var location = await _locationService.getLocation();
+    emit(
+      UserLocation(
+        lastTappedLocation: state.lastTappedLocation,
+        currentLocation: location,
+        polylines: state.polylines,
+      ),
+    );
+  }
+
   void updateLastTappedLocation(double latitude, double longitude) async {
     emit(
       UserLocation(
@@ -45,12 +59,19 @@ class LocationCubit extends Cubit<UserLocation> {
     if (state.currentLocation != null && state.lastTappedLocation != null) {
       GeocodedLocation? preciseOrigin =
           await _locationService.getGeocodedLocation(state.currentLocation!);
+      log('preciseOrigin: $preciseOrigin');
       GeocodedLocation? preciseDestination =
           await _locationService.getGeocodedLocation(state.lastTappedLocation!);
+      log('preciseDestination: $preciseDestination');
       if (preciseOrigin != null && preciseDestination != null) {
         List<LatitudeLongitude> points = await _directionsService.getDirections(
-          origin: preciseOrigin.encodedLocation,
-          destination: preciseDestination.encodedLocation,
+          origin: state.currentLocation!,
+          destination: state.lastTappedLocation!,
+        );
+
+        List<WayPoint>? wayPoints = await _directionsService.getWayPoints(
+          origin: state.currentLocation!,
+          destination: state.lastTappedLocation!,
         );
 
         emit(
@@ -58,6 +79,7 @@ class LocationCubit extends Cubit<UserLocation> {
             lastTappedLocation: state.lastTappedLocation,
             currentLocation: state.currentLocation,
             polylines: points,
+            wayPoints: wayPoints,
           ),
         );
       }

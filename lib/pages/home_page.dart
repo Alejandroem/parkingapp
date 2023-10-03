@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:parking/domain/services/location_service.dart';
-import 'package:parking/widgets/parking_browser.dart';
 
+import '../application/cubits/movement_cubit.dart';
 import '../application/cubits/navigation_cubit.dart';
-import '../widgets/live_map.dart';
+import '../widgets/navigation_map.dart';
+import '../widgets/parking_map.dart';
+import '../widgets/you_are_driving_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -16,17 +18,23 @@ class HomePage extends StatelessWidget {
         child: BlocBuilder<NavigationCubit, AppPage>(
           builder: (context, page) {
             switch (page) {
-              case AppPage.home:
-                return const Placeholder();
-              case AppPage.parking:
-                return const ParkingBrowser();
               case AppPage.map:
+                return const NavigationMap();
+              case AppPage.parking:
                 return FutureBuilder(
                   future: context.read<LocationService>().getLocation(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done) {
                       if (snapshot.hasData && snapshot.data != null) {
-                        return LiveMap(snapshot.data!);
+                        return BlocBuilder<MovementCubit, MovementState>(
+                          builder: (context, state) {
+                            if (state.lastParkedLocation != null &&
+                                state.lastParkedTime != null) {
+                              return ParkingMap(state.lastParkedLocation!);
+                            }
+                            return const YouAreDrivingPage();
+                          },
+                        );
                       }
                     }
                     return const Center(
@@ -45,28 +53,21 @@ class HomePage extends StatelessWidget {
             onTap: (index) {
               switch (index) {
                 case 0:
-                  context.read<NavigationCubit>().showHomePage();
+                  context.read<NavigationCubit>().showMapPage();
                   break;
                 case 1:
                   context.read<NavigationCubit>().showParkingPage();
-                  break;
-                case 2:
-                  context.read<NavigationCubit>().showMapPage();
                   break;
               }
             },
             items: const [
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: "Home",
+                icon: Icon(Icons.map),
+                label: "Map",
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.local_parking),
                 label: "Parking",
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.map),
-                label: "Map",
               ),
             ],
           );

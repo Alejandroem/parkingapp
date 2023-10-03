@@ -294,6 +294,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.0.0"
+  flutter_mapbox_navigation:
+    dependency: "direct main"
+    description:
+      name: flutter_mapbox_navigation
+      sha256: bc3e98be844f503237659e6113ed51b27fb06a8da22d0ae0a11cab3854138c19
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.0"
   flutter_polyline_points_plus:
     dependency: "direct main"
     description:
@@ -789,6 +797,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  very_good_analysis:
+    dependency: transitive
+    description:
+      name: very_good_analysis
+      sha256: "9ae7f3a3bd5764fb021b335ca28a34f040cd0ab6eec00a1b213b445dae58a4b8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.1.0"
   vm_service:
     dependency: "direct main"
     description:

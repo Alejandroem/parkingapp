@@ -61,30 +61,25 @@ class GeolocationLocationService extends LocationService {
   @override
   Future<GeocodedLocation?> getGeocodedLocation(
       LatitudeLongitude location) async {
-    //https://api.mapbox.com/geocoding/v5/mapbox.places/2.3687261219967013,48.863701544984025.json?access_token=YOUR_MAPBOX_ACCESS_TOKEN
-    final dio = Dio();
-    final response = await dio.get(
-      "https://api.mapbox.com/geocoding/v5/mapbox.places/${location.longitude},${location.latitude}.json?access_token=${AppConstants.mapBoxAccessToken}&routing=true",
-    );
-
-    if (response.statusCode == 200) {
-      final data = response.data as Map<String, dynamic>;
-      final features = data['features'] as List<dynamic>;
-      final firstFeature = features.first as Map<String, dynamic>;
-      final placeName = firstFeature['place_name'] as String;
-      final routablePoint =
-          firstFeature['routable_points']['points'] as List<dynamic>;
-      final firstRoutablePoint = routablePoint.first as Map<String, dynamic>;
-      final LatitudeLongitude codedLocation = LatitudeLongitude(
-        firstRoutablePoint["coordinates"][1] as double,
-        firstRoutablePoint["coordinates"][0] as double,
+    try {
+      final response = await Dio().get(
+        'https://api.mapbox.com/geocoding/v5/mapbox.places/${location.longitude},${location.latitude}.json?access_token=${AppConstants.mapBoxAccessToken}&routing=true',
       );
+      final features = response.data['features'];
+      if (features == null || features.isEmpty) {
+        return null;
+      }
+      final firstFeature = features[0];
       return GeocodedLocation(
-        placeName,
+        firstFeature['place_name'],
         location,
-        codedLocation,
+        LatitudeLongitude(
+          firstFeature['center'][1],
+          firstFeature['center'][0],
+        ),
       );
+    } catch (e) {
+      return null;
     }
-    return null;
   }
 }

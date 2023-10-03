@@ -9,14 +9,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:parking/main.dart';
 
-import 'package:parking/widgets/live_map.dart';
+import 'package:parking/widgets/parking_map.dart';
 
 void main() {
   testWidgets('Test Live Map', (WidgetTester tester) async {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const MyApp());
     //wait for time
-    expect(find.byType(LiveMap, skipOffstage: false), findsOneWidget);
+    expect(find.byType(ParkingMap, skipOffstage: false), findsOneWidget);
 
     /* // Verify that our counter starts at 0.
     expect(find.text('0'), findsOneWidget);
