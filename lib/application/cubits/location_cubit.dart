@@ -31,9 +31,10 @@ class LocationCubit extends Cubit<UserLocation> {
         ),
       );
     });
+    updateCurrentLocation();
   }
 
-  void updateCurrentLcoation() async {
+  void updateCurrentLocation() async {
     var location = await _locationService.getLocation();
     emit(
       UserLocation(
@@ -83,6 +84,17 @@ class LocationCubit extends Cubit<UserLocation> {
           ),
         );
       }
+    }
+  }
+
+  void updateLastTappedLocationFromAddress(String selection) async {
+    GeocodedLocation? geocodedLocation =
+        await _locationService.getGeocodedLocationFromAddress(selection);
+    if (geocodedLocation != null) {
+      updateLastTappedLocation(
+        geocodedLocation.encodedLocation.latitude,
+        geocodedLocation.encodedLocation.longitude,
+      );
     }
   }
 }

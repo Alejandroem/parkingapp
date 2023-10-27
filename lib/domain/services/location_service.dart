@@ -8,4 +8,6 @@ abstract class LocationService {
   Future<bool> askForLocationPermission();
   Stream<LiveLocation?> getLiveLocation();
   Future<GeocodedLocation?> getGeocodedLocation(LatitudeLongitude location);
+
+  Future<GeocodedLocation?> getGeocodedLocationFromAddress(String selection);
 }

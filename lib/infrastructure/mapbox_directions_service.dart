@@ -85,4 +85,24 @@ class MapboxDirectionsService extends DirectionsService {
     }
     return null;
   }
+
+  @override
+  Future<List<String>> getSearchSuggestions(String query) async {
+    try {
+      final dio = Dio();
+      final response = await dio.get(
+        "https://api.mapbox.com/geocoding/v5/mapbox.places/$query.json?access_token=${AppConstants.mapBoxAccessToken}&routing=true",
+      );
+      if (response.statusCode == 200) {
+        log(response.data.toString());
+        final data = response.data as Map<String, dynamic>;
+        return data["features"].map<String>((feature) {
+          return feature["place_name"] as String;
+        }).toList();
+      }
+    } catch (e) {
+      log("Error getting directions $e");
+    }
+    return [];
+  }
 }

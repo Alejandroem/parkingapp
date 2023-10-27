@@ -8,4 +8,8 @@ abstract class DirectionsService {
   Future<List<WayPoint>?> getWayPoints(
       {required LatitudeLongitude origin,
       required LatitudeLongitude destination});
+
+  Future<List<String>> getSearchSuggestions(String query);
+
+  getLocationFromAddress(String address) {}
 }

@@ -82,4 +82,32 @@ class GeolocationLocationService extends LocationService {
       return null;
     }
   }
+
+  @override
+  Future<GeocodedLocation?> getGeocodedLocationFromAddress(
+      String selection) async {
+    try {
+      final response = await Dio().get(
+        'https://api.mapbox.com/geocoding/v5/mapbox.places/$selection.json?access_token=${AppConstants.mapBoxAccessToken}&routing=true',
+      );
+      final features = response.data['features'];
+      if (features == null || features.isEmpty) {
+        return null;
+      }
+      final firstFeature = features[0];
+      return GeocodedLocation(
+        firstFeature['place_name'],
+        LatitudeLongitude(
+          firstFeature['center'][1],
+          firstFeature['center'][0],
+        ),
+        LatitudeLongitude(
+          firstFeature['center'][1],
+          firstFeature['center'][0],
+        ),
+      );
+    } catch (e) {
+      return null;
+    }
+  }
 }

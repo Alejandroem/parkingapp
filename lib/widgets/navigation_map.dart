@@ -8,8 +8,8 @@ import 'package:parking/application/cubits/location_cubit.dart';
 // ignore: depend_on_referenced_packages
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_mapbox_navigation/flutter_mapbox_navigation.dart';
+import 'package:parking/domain/services/directions_service.dart';
 
-import '../constants.dart';
 import '../domain/models/user_locations.dart';
 
 class NavigationMap extends StatelessWidget {
@@ -19,6 +19,12 @@ class NavigationMap extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<LocationCubit, UserLocation>(
       builder: (context, state) {
+        //if location null display loader
+        if (state.currentLocation == null) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
         return Stack(
           children: [
             FlutterMap(
@@ -46,11 +52,8 @@ class NavigationMap extends StatelessWidget {
               children: [
                 TileLayer(
                   urlTemplate:
-                      "https://api.mapbox.com/styles/v1/alejandroem/clkd2qmll005r01qk8xjbht2g/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiYWxlamFuZHJvZW0iLCJhIjoiY2xrYTFydDF5MDJmbDNzbDVuZnZlazRhaSJ9.hiZCPRVL85J0nXGC7wGvug",
-                  additionalOptions: const {
-                    'mapStyleId': AppConstants.mapBoxStyleId,
-                    'accessToken': AppConstants.mapBoxAccessToken,
-                  },
+                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                  subdomains: const ['a', 'b', 'c'],
                 ),
                 if (state.polylines != null)
                   PolylineLayer(
@@ -96,6 +99,75 @@ class NavigationMap extends StatelessWidget {
                   ],
                 ),
               ],
+            ),
+            Positioned(
+              top: 10,
+              left: 10,
+              right: 10,
+              child: Autocomplete<String>(
+                optionsBuilder: (TextEditingValue textEditingValue) async {
+                  if (textEditingValue.text.isEmpty) {
+                    return const [];
+                  }
+                  List<String> suggestions = await getSearchSuggestions(
+                      context,
+                      textEditingValue
+                          .text); // Replace with your search function
+                  return suggestions;
+                },
+                onSelected: (String selection) {
+                  context
+                      .read<LocationCubit>()
+                      .updateLastTappedLocationFromAddress(
+                        selection,
+                      );
+                },
+                optionsViewBuilder: (BuildContext context,
+                    AutocompleteOnSelected<String> onSelected,
+                    Iterable<String> options) {
+                  return Align(
+                    alignment: Alignment.topLeft,
+                    child: Material(
+                      elevation: 4.0,
+                      child: ListView(
+                        padding: const EdgeInsets.all(10.0),
+                        children: options.map((String option) {
+                          return GestureDetector(
+                            onTap: () {
+                              onSelected(option);
+                            },
+                            child: ListTile(
+                              title: Text(option),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  );
+                },
+                fieldViewBuilder: (BuildContext context,
+                    TextEditingController textEditingController,
+                    FocusNode focusNode,
+                    VoidCallback onFieldSubmitted) {
+                  return TextField(
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      hintText: 'Enter destination',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      //add a button to clean this at the end
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          textEditingController.clear();
+                        },
+                        icon: const Icon(Icons.clear),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
             if (state.wayPoints != null)
               Positioned(
@@ -147,5 +219,12 @@ class NavigationMap extends StatelessWidget {
 
   void _onRouteEvent(RouteEvent value) {
     log('RouteEvent: $value');
+  }
+
+  Future<List<String>> getSearchSuggestions(
+      BuildContext context, String query) async {
+    DirectionsService directionsService = context.read<DirectionsService>();
+    log('getSearchSuggestions: $query');
+    return await directionsService.getSearchSuggestions(query);
   }
 }
