@@ -8,7 +8,9 @@ import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:flutter_mapbox_navigation/flutter_mapbox_navigation.dart';
 import 'package:kdgaugeview/kdgaugeview.dart';
+import 'package:mycar/widgets/parking_browser.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -20,7 +22,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../constants.dart';
 import '../databases/databases.dart';
-
+import 'widgets/navigation_map.dart';
 
 // void main() => runApp(const MaterialApp(home: screen2_road()));
 
@@ -100,8 +102,8 @@ class screen2_roadState extends State<screen2_road> {
   InAppWebViewController? webViewController;
 
   InAppWebViewSettings settings = InAppWebViewSettings(
-   // isInspectable: kDebugMode,
-   // mediaPlaybackRequiresUserGesture: false,
+    // isInspectable: kDebugMode,
+    // mediaPlaybackRequiresUserGesture: false,
     allowsInlineMediaPlayback: true,
     iframeAllow: "camera; microphone",
     iframeAllowFullscreen: true,
@@ -116,19 +118,16 @@ class screen2_roadState extends State<screen2_road> {
 
   final urlController = TextEditingController();
 
-
   /// activity recognition
   final activityRecognition = FlutterActivityRecognition.instance;
   final _activityStreamController = StreamController<Activity>();
   StreamSubscription<Activity>? _activityStreamSubscription;
-
 
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-
       // Subscribe to the activity stream.
       final activityRecognition = FlutterActivityRecognition.instance;
 
@@ -140,7 +139,6 @@ class screen2_roadState extends State<screen2_road> {
 
     _lat = widget.lat as double;
     _lon = widget.lon as double;
-
   }
 
   GoogleMapController? _controller;
@@ -160,41 +158,41 @@ class screen2_roadState extends State<screen2_road> {
           child: Column(
             children: <Widget>[
               Container(
-                color:color_background2,
-                height:40,
+                color: color_background2,
+                height: 40,
                 width: _width,
                 child: Center(
                   child: ButtonsTabBar(
                     backgroundColor: color_background2,
                     unselectedBackgroundColor: color_background2,
                     unselectedLabelStyle: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.normal),
-                    labelStyle:
-                    TextStyle(
-                        color: Colors.yellow,
-                        fontWeight: FontWeight.bold),
+                        color: Colors.white, fontWeight: FontWeight.normal),
+                    labelStyle: TextStyle(
+                        color: Colors.yellow, fontWeight: FontWeight.bold),
                     tabs: [
-                      Tab(icon: Icon(FontAwesomeIcons.road, size: 18),
-                      //  text: "Dest.",
-                      ),
-                      Tab(icon: Icon(FontAwesomeIcons.google, size: 18),
-                       // text: "Google",
-                     ),
-                      Tab(icon: Icon(FontAwesomeIcons.waze, size: 18),
-                     //   text: "Waze",
+                      Tab(
+                        icon: Icon(FontAwesomeIcons.road, size: 18),
+                        //  text: "Dest.",
                       ),
                       Tab(
-                        icon: Icon(FontAwesomeIcons.car, size:18),
-                      //  text: "Traffic",
+                        icon: Icon(FontAwesomeIcons.google, size: 18),
+                        // text: "Google",
+                      ),
+                      Tab(
+                        icon: Icon(FontAwesomeIcons.waze, size: 18),
+                        //   text: "Waze",
+                      ),
+                      Tab(
+                        icon: Icon(FontAwesomeIcons.car, size: 18),
+                        //  text: "Traffic",
                       ),
                     ],
                   ),
                 ),
               ),
               Container(
-                color:color_background2,
-                height:50,
+                color: color_background2,
+                height: 50,
                 width: _width,
                 child: Center(
                   child: Padding(
@@ -214,10 +212,8 @@ class screen2_roadState extends State<screen2_road> {
                     Center(
                       child: Screen_freeNav(),
                     ),
-
                     Center(
-                      child:
-                      Column(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         mainAxisSize: MainAxisSize.max,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -249,51 +245,44 @@ class screen2_roadState extends State<screen2_road> {
                           ),
                         ],
                       ),
-
                     ),
-
-
                     Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          mainAxisSize: MainAxisSize.max,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Text(
-                              "A T T E N T I O N",
-                              style: TextStyle_large,
-                              textAlign: TextAlign.center,
-                            ),
-                            Text(
-                              "En cliquant sur le bouton ci-dessous\nVous serez redidrigé\nvers l'application Waze",
-                              style: TextStyle_small,
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(
-                              width: 200.0,
-                              height: 100.0,
-                              child: ElevatedButton(
-                                child: Text("Waze",
-                                       style: TextStyle_regular_white),
-                                style: ElevatedButton.styleFrom(
-                                  primary: color_background2,
-                                  elevation: 0,
-                                ),
-                                onPressed: () {
-                                  Waze();
-                                },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisSize: MainAxisSize.max,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Text(
+                            "A T T E N T I O N",
+                            style: TextStyle_large,
+                            textAlign: TextAlign.center,
+                          ),
+                          Text(
+                            "En cliquant sur le bouton ci-dessous\nVous serez redidrigé\nvers l'application Waze",
+                            style: TextStyle_small,
+                            textAlign: TextAlign.center,
+                          ),
+                          SizedBox(
+                            width: 200.0,
+                            height: 100.0,
+                            child: ElevatedButton(
+                              child:
+                                  Text("Waze", style: TextStyle_regular_white),
+                              style: ElevatedButton.styleFrom(
+                                primary: color_background2,
+                                elevation: 0,
                               ),
+                              onPressed: () {
+                                Waze();
+                              },
                             ),
-                          ],
-                        ),
-
+                          ),
+                        ],
+                      ),
                     ),
-
                     Center(
                       child: Screen_Traffic(),
                     ),
-
-
                   ],
                 ),
               ),
@@ -304,14 +293,34 @@ class screen2_roadState extends State<screen2_road> {
     );
   }
 
+  late MapBoxNavigationViewController _mapController;
 
+  Screen_freeNav() {
+    MapBoxOptions options = MapBoxNavigation.instance.getDefaultOptions();
+    options.language = "fr";
+    options.units = VoiceUnits.metric;
+    options.initialLatitude = 48.8955025;
+    options.initialLongitude = 2.368245;
+    options.zoom = 18.0;
 
- Screen_freeNav () {}
+    return Container(
+      color: Colors.grey,
+      child: MapBoxNavigationView(
+        options: options,
+        onRouteEvent: (value) {
+          print('RouteEvent: $value');
+        },
+        onCreated: (MapBoxNavigationViewController controller) async {
+          _mapController = controller;
+          controller.initialize();
+        },
+      ),
+    );
+  }
 
+  Screen_Navto() {}
 
- Screen_Navto () {}
-
- Screen_Traffic() {
+  Screen_Traffic() {
     return Container(
       margin: EdgeInsets.all(0),
       padding: EdgeInsets.all(0),
@@ -322,7 +331,7 @@ class screen2_roadState extends State<screen2_road> {
           _controller = controller;
         },
         initialCameraPosition: CameraPosition(
-          target: LatLng(_lat,_lon),
+          target: LatLng(_lat, _lon),
           //target: LatLng(48.88246946770146,2.3078547543281744), // Paris 8e
           zoom: 11.0,
         ),
@@ -334,14 +343,12 @@ class screen2_roadState extends State<screen2_road> {
         myLocationEnabled: true,
         gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
           Factory<OneSequenceGestureRecognizer>(
-                () => EagerGestureRecognizer(),
+            () => EagerGestureRecognizer(),
           ),
         },
       ),
     );
   }
-
-
 
   ///* -------------------------------------------------------------------------
   ///
@@ -464,40 +471,35 @@ class screen2_roadState extends State<screen2_road> {
     super.dispose();
   }
 
-
-
-
-
-  void GMaps () {
+  void GMaps() {
     _launchUniversalLinkIos(
       Uri(
           scheme: 'https',
           host: 'www.google.com',
-          path: '/maps/search/?api=1&query=47.48.88246946770146%2.307854754328'),
-
+          path:
+              '/maps/search/?api=1&query=47.48.88246946770146%2.307854754328'),
     );
   }
 
-
-  void Waze () {
+  void Waze() {
     _launchUniversalLinkIos(
       Uri(
           scheme: 'https',
           host: 'waze.com',
-          path: '/ul?ll=48.88246946770146,2.3078547543281744&navigate=yes&zoom=17'),
+          path:
+              '/ul?ll=48.88246946770146,2.3078547543281744&navigate=yes&zoom=17'),
     );
   }
 
-
   Screen_Maps(double Lat, double Lon) {
-
     /// in my code :
     // String url = "https://www.google.com/maps/@$Lat,$Lon,10z/data=!5m1!1e1?entry=ttu";
 
     /// for you to test
- //   String url = "https://www.google.com/maps/@48.88246946770146,2.3078547543281744,10z/data=!5m1!1e1?entry=ttu";
+    //   String url = "https://www.google.com/maps/@48.88246946770146,2.3078547543281744,10z/data=!5m1!1e1?entry=ttu";
 
-    String url = "https://www.google.com/maps/@48.88246946770146,2.3078547543281744,15";
+    String url =
+        "https://www.google.com/maps/@48.88246946770146,2.3078547543281744,15";
 
     return Expanded(
       child: InAppWebView(
@@ -634,7 +636,4 @@ class screen2_roadState extends State<screen2_road> {
     );
     return;
   }
-
-
-
 }
