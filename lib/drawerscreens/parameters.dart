@@ -2,8 +2,10 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
+import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widget/widgets.dart';
 
@@ -19,13 +21,52 @@ class screenparam extends StatefulWidget {
 }
 
 class _screenparam extends State<screenparam> {
-  var switch1 = false;
-  var switch2 = true;
-  var switch3 = true;
-  var switch4 = true;
-  var switch5 = true;
-  var switch6 = false;
-  var switch7 = true;
+
+
+ // String _savedData = '';
+
+ // final SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  bool switch1 = false;
+  bool switch2 = false;
+  bool switch3 = false;
+  bool switch4 = false;
+  bool switch5 = false;
+  bool switch6 = false;
+  bool switch7 = false;
+
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedData();
+  }
+
+  Future<void> _loadSavedData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      switch1 = prefs.getBool('switch1') ?? false;
+      switch2 = prefs.getBool('switch2') ?? false;
+      switch3 = prefs.getBool('switch3') ?? false;
+      switch4 = prefs.getBool('switch4') ?? false;
+      switch5 = prefs.getBool('switch5') ?? false;
+      switch6 = prefs.getBool('switch6') ?? false;
+      switch7 = prefs.getBool('switch7') ?? false;
+    });
+  }
+
+  Future<void> _saveData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('switch1', switch1);
+    await prefs.setBool('switch2', switch2);
+    await prefs.setBool('switch3', switch3);
+    await prefs.setBool('switch4', switch4);
+    await prefs.setBool('switch5', switch5);
+    await prefs.setBool('switch6', switch6);
+    await prefs.setBool('switch7', switch7);
+    _loadSavedData(); // Refresh the displayed data
+  }
+
 
   Widget _buildList() {
     return ListView(
@@ -81,6 +122,7 @@ class _screenparam extends State<screenparam> {
             onChanged: (value) => setState(() => switch7 = value),
           ),
         ),
+        TextButton(onPressed: _saveData, child: Text("Sauvegarder")),
       ],
     );
   }

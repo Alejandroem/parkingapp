@@ -1,8 +1,6 @@
-import 'package:dart_date/dart_date.dart';
 import 'package:flutter/material.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import '../constants.dart';
-import '../text_FR.dart';
 import '../drawerscreens/controle_technique.dart';
 
 class ApiFrenchControleTechnique extends StatefulWidget {
@@ -66,10 +64,10 @@ class _ApiFrenchControleTechniqueState extends State<ApiFrenchControleTechnique>
                 value: dropdownValue_vehicule,
                 icon: const Icon(Icons.arrow_downward),
                 elevation: 16,
-                style: const TextStyle(color: Colors.deepPurple),
+                style: const TextStyle(color: Colors.teal),
                 underline: Container(
                   height: 2,
-                  color: Colors.deepPurpleAccent,
+                  color: Colors.teal,
                 ),
                 onChanged: (String? value) {
                   // This is called when the user selects an item.
@@ -97,10 +95,10 @@ class _ApiFrenchControleTechniqueState extends State<ApiFrenchControleTechnique>
                 value: dropdownValue_carburant,
                 icon: const Icon(Icons.arrow_downward),
                 elevation: 16,
-                style: const TextStyle(color: Colors.deepPurple),
+                style: const TextStyle(color: Colors.teal),
                 underline: Container(
                   height: 2,
-                  color: Colors.deepPurpleAccent,
+                  color: Colors.teal,
                 ),
                 onChanged: (String? value) {
                   // This is called when the user selects an item.

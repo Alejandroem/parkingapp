@@ -2,19 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../databases/contacts.dart';
 import '../constants.dart';
-import '../databases/DatabaseClient.dart';
-import '../databases/permis.dart';
-import '../text_FR.dart';
-import '../utils.dart';
-import '../services/webview.dart';
-import '../services/location_service.dart';
+import '../databases/databases.dart';
 
 class mesadresses_edit extends StatefulWidget {
   const mesadresses_edit({super.key, this.androidDrawer, this.idKey});

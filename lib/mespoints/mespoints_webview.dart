@@ -73,7 +73,7 @@ class _mespoints_webviewState extends State<mespoints_webview> {
         groupName: "myUserScripts",
         source: """
     window.addEventListener('load', function(event) {
-    document.body.style.backgroundColor = 'purple';
+    document.body.style.backgroundColor = 'teal';
     document.body.style.padding = '20px';});""",
         injectionTime: UserScriptInjectionTime.AT_DOCUMENT_START);
 

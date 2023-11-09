@@ -19,13 +19,14 @@ class Vehicules {
   final String? last_datetime;
   final int? garage;
   final String? key_id;
-  final String? bluetooth;
+  final int? bluetooth;
   final int? econnect;
   final int? residentiel_in;
   final String? residentiel_code;
   final String? residentiel_zone;
-  final String? residentiel_datetime;
-  final String? parking_datetime;
+  final String? date_resident;
+  final String? date_visiteur;
+  final String? date_handi;
   final String? image;
 
   const Vehicules(
@@ -53,8 +54,9 @@ class Vehicules {
         this.residentiel_in,
         this.residentiel_code,
         this.residentiel_zone,
-        this.residentiel_datetime,
-        this.parking_datetime,
+        this.date_resident,
+        this.date_visiteur,
+        this.date_handi,
         this.image});
 
   factory Vehicules.fromMap(Map<String, dynamic> map) =>
@@ -83,8 +85,9 @@ class Vehicules {
           residentiel_in: map["residentiel_in"],
           residentiel_code: map["residentiel_code"],
           residentiel_zone: map["residentiel_zone"],
-          residentiel_datetime: map["residentiel_datetime"],
-          parking_datetime: map["parking_datetime"],
+          date_resident: map["date_resident"],
+          date_visiteur: map["date_visiteur"],
+          date_handi: map["date_handi"],
           image: map["image"]
       );
 
@@ -114,8 +117,9 @@ class Vehicules {
       'residentiel_in' : residentiel_in,
       'residentiel_code' : residentiel_code,
       'residentiel_zone' : residentiel_zone,
-      'residentiel_datetime' : residentiel_datetime,
-      'parking_datetime' : parking_datetime,
+      'date_resident' : date_resident,
+      'date_visiteur' : date_visiteur,
+      'date_handi' : date_handi,
       'image' : image,
     };
   }

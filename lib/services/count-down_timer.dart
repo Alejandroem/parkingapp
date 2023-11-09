@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:numberpicker/numberpicker.dart';
 import '../constants.dart';
-import '../text_FR.dart';
+
 
 
 class CountDownTimer extends StatefulWidget {
@@ -45,10 +45,10 @@ class _CountDownTimerState extends State<CountDownTimer> {
                 value: dropdownValue,
                 icon: const Icon(Icons.arrow_downward),
                 elevation: 16,
-                style: const TextStyle(color: Colors.deepPurple),
+                style: const TextStyle(color: Colors.teal),
                 underline: Container(
                   height: 2,
-                  color: Colors.deepPurpleAccent,
+                  color: Colors.teal,
                 ),
                 onChanged: (String? value) {
                   // This is called when the user selects an item.
@@ -80,7 +80,7 @@ class _CountDownTimerState extends State<CountDownTimer> {
               const SizedBox(height: 30, width:30),
               TextButton(
                 style: TextButton.styleFrom(
-                  foregroundColor: Colors.deepPurple,
+                  foregroundColor: Colors.teal,
                   textStyle: const TextStyle(fontSize: 20),
                 ),
                 onPressed: () {
@@ -138,7 +138,7 @@ class _CountDownTimerState extends State<CountDownTimer> {
             elevation: 5,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
-                side: BorderSide(width: 2, color: Colors.deepPurple)),
+                side: BorderSide(width: 2, color: Colors.teal)),
             child: Column(
 
               children: [
@@ -155,7 +155,7 @@ class _CountDownTimerState extends State<CountDownTimer> {
                   onChanged: (value) =>
                       setState(() => _durationChoice = value),
                   textStyle: TextStyle(fontWeight: FontWeight.normal, fontSize: 21),
-                  selectedTextStyle: TextStyle(fontStyle: FontStyle.italic,color: Colors.deepPurple ,fontSize: 40),
+                  selectedTextStyle: TextStyle(fontStyle: FontStyle.italic,color: Colors.teal ,fontSize: 40),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: Colors.black26),
@@ -196,7 +196,7 @@ class _CountDownTimerState extends State<CountDownTimer> {
                 style: TextButton.styleFrom(
                   elevation: 12,
                   primary: Colors.white,
-                  backgroundColor: Colors.deepPurple,
+                  backgroundColor: Colors.teal,
                 ),
                 onPressed: () {
                   setState(() {
@@ -226,7 +226,7 @@ class _CountDownTimerState extends State<CountDownTimer> {
                   style: TextButton.styleFrom(
                     elevation: 12,
                     primary: Colors.white,
-                    backgroundColor: Colors.deepPurple,
+                    backgroundColor: Colors.teal,
                   ),
                   onPressed: () {
                     setState(() {

@@ -1,16 +1,11 @@
-import 'dart:convert';
 import 'dart:io';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import '../constants.dart';
-import '../databases/DatabaseClient.dart';
+import '../databases/databases.dart';
 import '../databases/documents.dart';
-import '../databases/documents.dart';
-import '../services/utility.dart';
-import '../text_FR.dart';
 
 class DocumentsShow extends StatefulWidget {
   static const androidIcon = Icon(Icons.library_books);

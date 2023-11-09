@@ -2,18 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:mycar/mespoints/mespoints_webview.dart';
 import '../constants.dart';
-import '../constants.dart';
-import '../databases/DatabaseClient.dart';
+import '../databases/databases.dart';
 import '../databases/permis.dart';
 import '../services/webview.dart';
-import '../text_FR.dart';
-import '../utils.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../services/location_service.dart';
 
 class mespoints extends StatefulWidget {
   const mespoints({super.key, this.androidDrawer});

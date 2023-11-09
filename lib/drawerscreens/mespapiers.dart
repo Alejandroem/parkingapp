@@ -3,21 +3,14 @@
 // found in the LICENSE file.
 
 import 'dart:io';
-import 'package:cross_file/cross_file.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_lorem/flutter_lorem.dart';
-import 'package:sqflite/sqflite.dart';
 import '../constants.dart';
 import '../databases/documents.dart';
 import '../model/takepicture.dart';
 import '../drawerscreens/documents_show.dart';
-import '../services/utility.dart';
-import '../utils.dart';
 import '../widget/widgets.dart';
-import '../text_FR.dart';
-import '../databases/DatabaseClient.dart';
+import '../databases/databases.dart';
 
 
 
@@ -38,7 +31,7 @@ class mespapiersState extends State<mespapiers> {
 
   @override
   void initState() {
-    colors = [Colors.deepPurple,Colors.deepPurple,Colors.deepPurple,Colors.deepPurple,Colors.grey,Colors.grey,Colors.grey];
+    colors = [Colors.teal,Colors.teal,Colors.teal,Colors.teal,Colors.grey,Colors.grey,Colors.grey];
     getDocuments();
     super.initState();
   }
@@ -107,7 +100,7 @@ class mespapiersState extends State<mespapiers> {
                             items[index].nom!,
                             style: const TextStyle(
                                 fontSize: 22,
-                                color: Colors.deepPurple,
+                                color: Colors.teal,
                                 fontWeight: FontWeight.bold),
                           ),
 

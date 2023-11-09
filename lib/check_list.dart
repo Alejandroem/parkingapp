@@ -9,9 +9,9 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import '../constants.dart';
 import '../widget/widgets.dart';
-import '../text_FR.dart';
-import '../databases/DatabaseClient.dart';
+import '../databases/databases.dart';
 import '../databases/documents.dart';
+import '../text_FR.dart';
 
 class screen4_check_list extends StatefulWidget {
   static const title = 'Liste infos';

@@ -2,12 +2,12 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../constants.dart';
-import '../services/webview2.dart';
+import '../panne/panne_autre.dart';
 import '../services/location_service.dart';
+import '../model/dev_en_cours.dart';
 
 class pannes extends StatefulWidget {
   const pannes({super.key, this.androidDrawer});
@@ -112,11 +112,7 @@ class pannesState extends State<pannes> {
                                     child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          Text("Choisissez le type de Panne",
-                                              style: TextStyle_regular),
-                                          Text("pour lequel vous avez besoin d'aide",
-                                              style: TextStyle_regular),
-                                          Text("puis cliquez sur 'Afficher la Liste'",
+                                          Text("Dans quel cas êtes vous ?",
                                               style: TextStyle_regular),
                                         ]),
                                   ),
@@ -151,10 +147,10 @@ class pannesState extends State<pannes> {
                                             ElevatedButton.icon(   // <-- ElevatedButton
                                               onPressed: () {
                                                 Navigator.of(context).push(
-                                                MaterialPageRoute(builder: (context) => webview2(url: _url_batterie, title:"Dépanneurs Batterie")));
+                                                MaterialPageRoute(builder: (context) => DevEnCours()));
                                                 },
                                               icon: Icon( Icons.check, size: 36.0 ),
-                                              label: Text('Batterie', style: TextStyle_regular_white),
+                                              label: Text('Sur une autoroute', style: TextStyle_regular_white),
                                             ),
                                           ),
 
@@ -166,10 +162,10 @@ class pannesState extends State<pannes> {
                                   ElevatedButton.icon(   // <-- ElevatedButton
                                     onPressed: () {
                                       Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) => webview2(url: _url_crevaison, title:"Dépanneurs Crevaison")));
+                                          MaterialPageRoute(builder: (context) => DevEnCours()));
                                     },
                                     icon: Icon(Icons.check, size: 36.0 ),
-                                    label: Text('Crevaison', style: TextStyle_regular_white),
+                                    label: Text('Sur le périphérique', style: TextStyle_regular_white),
                                   ),
                                 ),
 
@@ -181,39 +177,10 @@ class pannesState extends State<pannes> {
                                   ElevatedButton.icon(   // <-- ElevatedButton
                                     onPressed: () {
                                       Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) => webview2(url: _url_essence, title:"Dépanneurs Essence")));
+                                          MaterialPageRoute(builder: (context) => pannes_autres()));
                                     },
                                     icon: Icon(Icons.check, size: 36.0),
-                                    label: Text('Essence', style: TextStyle_regular_white),
-                                  ),
-                                ),
-
-
-                                SizedBox(
-                                  width:(size.width-75),
-                                  height:90,
-                                  child:
-                                  ElevatedButton.icon(   // <-- ElevatedButton
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) => webview2(url: _url_depanneur, title:"Dépanneurs")));
-                                    },
-                                    icon: Icon(Icons.check,size: 36.0),
-                                    label: Text('Dépanneur', style: TextStyle_regular_white),
-                                  ),
-                                ),
-
-                                SizedBox(
-                                  width:(size.width-75),
-                                  height:90,
-                                  child:
-                                  ElevatedButton.icon(   // <-- ElevatedButton
-                                    onPressed: () {
-                                      Navigator.of(context).push(
-                                          MaterialPageRoute(builder: (context) => webview2(url: _url_remorquage, title:"Remorquage")));
-                                    },
-                                    icon: Icon(Icons.check,size: 36.0),
-                                    label: Text('Remorquage', style: TextStyle_regular_white),
+                                    label: Text('Ailleurs', style: TextStyle_regular_white),
                                   ),
                                 ),
                               ],

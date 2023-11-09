@@ -1,12 +1,10 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:mycar/databases/DatabaseClient.dart';
+import 'package:mycar/databases/databases.dart';
 import 'package:mycar/databases/documents.dart';
 import 'package:mycar/drawerscreens/mespapiers.dart';
 import 'dart:async';
-import '../text_FR.dart';
 import '../constants.dart';
-import 'package:cunning_document_scanner/cunning_document_scanner.dart';
+//import 'package:cunning_document_scanner/cunning_document_scanner.dart';
 
 
 class Takepicture extends StatefulWidget {
@@ -133,7 +131,7 @@ class _TakepictureState extends State<Takepicture> {
       // pour prendre en photo puis recadrer automatiquement l'image
       // https://github.com/jachzen/cunning_document_scanner
 
-      pictures = await CunningDocumentScanner.getPictures() ?? [];
+    //  pictures = await CunningDocumentScanner.getPictures() ?? [];
 
 
       if (!mounted) {
@@ -144,14 +142,14 @@ class _TakepictureState extends State<Takepicture> {
 
       print ('***********************************');
       print ("photo prise");
-      print (pictures);
+    //  print (pictures);
       print ('widget.IdKey =');
       print (widget.IdKey);
       print ('***********************************');
 
         setState(() {
 
-            _pictures = pictures;
+     //      _pictures = pictures;
 
               Map<String, dynamic> map = {'documents': widget.IdKey};
               map["id"]  = widget.IdKey;

@@ -23,6 +23,8 @@ class Contacts {
   final String? facebook;
   final String? date_birth;
   final String? image;
+  final int? paybyphone_cookie;
+  final int? mairie_paris_cookie;
 
  const Contacts(
    {this.id, 
@@ -46,7 +48,9 @@ class Contacts {
     this.tweeter, 
     this.facebook, 
     this.date_birth, 
-    this.image
+    this.image,
+     this.mairie_paris_cookie,
+     this.paybyphone_cookie
    });
 
  factory Contacts.fromMap(Map<String, dynamic> map) =>
@@ -72,7 +76,9 @@ class Contacts {
         tweeter: map["tweeter"],
         facebook: map["facebook"],
         date_birth: map["date_birth"],
-        image: map["image"]
+        image: map["image"],
+        mairie_paris_cookie: map["mairie_paris_cookie"],
+        paybyphone_cookie: map["paybyphone_cookie"]
       );
 
    Map<String, dynamic> toMap() {
@@ -98,7 +104,9 @@ class Contacts {
      'tweeter': tweeter,
      'facebook': facebook,
      'date_birth': date_birth,
-     'image': image
+     'image': image,
+     'mairie_paris_cookie': mairie_paris_cookie,
+     'paybyphone_cookie': paybyphone_cookie
      };
    }
 

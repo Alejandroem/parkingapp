@@ -2,28 +2,15 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_lorem/flutter_lorem.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
+import 'package:animated_loading_indicators/animated_loading_indicators.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../api_controle_technique/api_FrenchControleTechnique_call.dart';
 import '../api_controle_technique/api_FrenchControleTechnique_response.dart';
-import '../model/geo_position.dart';
-import '../services/data_services.dart';
 import '../services/location_service.dart';
 
-import '../utils.dart';
 import '../constants.dart';
-import '../widget/widgets.dart';
-import '../text_FR.dart';
-import '../utils.dart';
-import '../widget/widgets.dart';
-import '../text_FR.dart';
 
 class controletechnique extends StatefulWidget {
   const controletechnique({super.key, this.androidDrawer});
@@ -38,8 +25,11 @@ class controletechniqueState extends State<controletechnique> {
 
   static const _itemsLength = 10;
 
-  bool _isLoading = false;
+  int isLoaded = 0;
+
   bool orderByPrice = true;
+  bool ascendingOrder = true; // Track the sorting order
+  bool DistascendingOrder = true; // Track the sorting order
 
   GeoPosition? positionToCall;
   APIResponse? apiResponseCT;
@@ -67,23 +57,37 @@ class controletechniqueState extends State<controletechnique> {
   getControleTechniquePrices() async {
     if (positionToCall == null) return;
     setState(() {
-      _isLoading = true;
+      isLoaded = 0;
     }); //show loader
-    print ('******************************REQUEST apiResponseCT********************************');
+    print(
+        '******************************REQUEST apiResponseCT********************************');
     apiResponseCT = await ApiControleTechnique()
         .ControleTechniqueApi(positionToCall!); //wait for update
     setState(() {
-      print ('***********************************apiResponseCT********************************');
+      print(
+          '***********************************apiResponseCT********************************');
       print(apiResponseCT);
-      _isLoading = false;
+      isLoaded = 1;
     }); //hide loader
   }
 
+  @override
   Widget build(BuildContext context) {
-    var size = MediaQuery.of(context).size;
-    var platform = Theme.of(context).platform;
-    if (_isLoading) {
-      return Container(
+    var size = MediaQuery
+        .of(context)
+        .size;
+    var platform = Theme
+        .of(context)
+        .platform;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Défribillateurs à proximité"),
+      ),
+      body: Column(
+          children: [
+          Expanded(
+          child: (isLoaded == 0)
+          ? Container(
         // margin: EdgeInsets.all(10),
         // padding: EdgeInsets.all(10),
           height: (size.height),
@@ -93,128 +97,168 @@ class controletechniqueState extends State<controletechnique> {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               mainAxisSize: MainAxisSize.max,
               // crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Text("Nous interrogeons",
+              children: [
+                Text("Nous interrogeons\n la base de données des Controles Technique",
+                    style: TextStyle_large,
                     textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineLarge),
-                Text("la base de données des Controles Technique",
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineLarge),
-                Transform.scale(
-                  scale: 2,
-                  child: CircularProgressIndicator(
-                    //value:0,
-                    color: Colors.deepPurple,
-                    semanticsLabel: 'en cours d interrogation',
+                    ),
+                UpDownLoader(
+                  size: 12,
+                  firstColor: Colors.teal,
+                  secondColor: Colors.black,
+                  //  duration: Duration(milliseconds: 600),
+                  ),
+              ],
+            ),
+          )
+      )
+
+          : Column(
+              children: [
+                Container(
+                  color: color_background2,
+                  child: Row(
+                    children: [
+                      Text(
+                        '      Classement par prix ',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Colors.white),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.price_change,
+                          color: Colors.white,
+                        ),
+                        highlightColor: Colors.greenAccent,
+                        onPressed: () {
+                          orderByPrice = true;
+                        },
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          Icons.social_distance,
+                          color: Colors.white,
+                        ),
+                        onPressed: () {
+                          orderByPrice = false;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _itemsLength,
+                    itemBuilder: (context, index) =>
+                        Card(
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              radius: 20.0,
+                              backgroundColor: color_background2,
+                              child: Text(
+                                "", // titles[index].substring(0, 1),
+                                style: const TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            title: Text(
+                                (apiResponseCT?.records[index].fields
+                                    .cct_denomination != null)
+                                    ? apiResponseCT!.records[index].fields.cct_denomination.toString() +
+                                    " (" +
+                                    DistanceFormat(apiResponseCT!.records[index].fields.dist.toString()) +
+                                    ' m)'
+                                    : "",
+                                style: TextStyle_small),
+                            subtitle: Text(
+                                "Visite : " +
+                                    PriceFormat(apiResponseCT!.records[index].fields.prix_visite.toString()) +
+                                    " contre visite (min/max) : " +
+                                    PriceFormat(apiResponseCT!.records[index].fields.prix_contre_visite_min.toString()) +
+                                    " / " +
+                                    PriceFormat(apiResponseCT!.records[index].fields.prix_contre_visite_max.toString()),
+                                style: TextStyle_verysmall),
+                          ),
+                          //trailing: const Icon(Icons.arrow_forward),
+                        ),
                   ),
                 ),
               ],
             ),
-          ));
-    } else {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Centres de controle technique'),
-        ),
-        body: Column(
-          children: [
-            Container(
-              color: color_background2,
-              child: Row(
-                children: [
-                  Text(
-                    '      Classement par prix ',
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                        color: Colors.white),
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.price_change,
-                      color: Colors.white,
-                    ),
-                    highlightColor: Colors.greenAccent,
-                    onPressed: () {
-                      orderByPrice = true;
-                    },
-                  ),
-                  IconButton(
-                    icon: Icon(
-                      Icons.social_distance,
-                      color: Colors.white,
-                    ),
-                    onPressed: () {
-                      orderByPrice = false;
-                    },
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                itemCount: _itemsLength,
-                itemBuilder: (context, index) => Card(
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      radius: 20.0,
-                      backgroundColor: color_background2,
-                      child: Text(
-                        "", // titles[index].substring(0, 1),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    title: Text(
-                        (apiResponseCT?.records[index].fields.cct_denomination != null)
-                            ? apiResponseCT!.records[index].fields.cct_denomination
-                            .toString() +
-                            " (" +
-                            DistanceFormat(apiResponseCT!
-                               .records[index].fields.dist
-                                .toString()) +
-                            ' m)'
-                            : "",
-                        style: TextStyle_small),
-                    subtitle: Text(
-                        "Visite : " +
-                            PriceFormat(apiResponseCT!
-                                .records[index].fields.prix_visite.toString())
-                                      +
-                            " contre visite (min/max) : " +
-                            PriceFormat(apiResponseCT!
-                                .records[index].fields.prix_contre_visite_min.toString()) +
-                            " / " +
-                            PriceFormat(apiResponseCT!
-                                .records[index].fields.prix_contre_visite_max.toString()),
-                        style: TextStyle_verysmall),
-                  ),
-                  //trailing: const Icon(Icons.arrow_forward),
-                ),
-              ),
-            ),
+          ),
           ],
-        ),
-      );
-    }
+          ),
+    );
   }
 
-  PriceFormat(String _price) {
-    var formatPrice;
-    var fPrice = NumberFormat("#.##", "fr_FR");
-    (_price == 'null')
-        ? formatPrice = 'N.C.'
-        : formatPrice = fPrice.format(double.tryParse(_price.toString()));
-    return formatPrice;
+
+PriceFormat(String _price) {
+  var formatPrice;
+  var fPrice = NumberFormat("#.##", "fr_FR");
+  (_price == 'null')
+      ? formatPrice = 'N.C.'
+      : formatPrice = fPrice.format(double.tryParse(_price.toString()));
+  return formatPrice;
+}
+
+DistanceFormat(String _distance) {
+  var formatDistance;
+  var fDistance = NumberFormat("##,###", "fr_FR");
+  (_distance == 'null')
+      ? formatDistance = 'N.C.'
+      : formatDistance =
+      fDistance.format(double.tryParse(_distance.toString()));
+  return formatDistance;
+}
+
+  void sortByDistAscending() {
+    setState(() {
+      apiResponseCT?.records.sort((a, b) => (a.fields.dist ?? '').compareTo(b.fields.dist ?? ''));
+    });
   }
 
-  DistanceFormat(String _distance) {
-    var formatDistance;
-    var fDistance = NumberFormat("##,###", "fr_FR");
-    (_distance == 'null')
-        ? formatDistance = 'N.C.'
-        : formatDistance =
-        fDistance.format(double.tryParse(_distance.toString()));
-    return formatDistance;
+  void sortByDistDescending() {
+    setState(() {
+      apiResponseCT?.records.sort((a, b) => (b.fields.dist ?? '').compareTo(a.fields.dist ?? ''));
+    });
+  }
+
+
+/*
+  void sortBySp98PrixAscending() {
+    setState(() {
+      apiResponseCT?.records.sort((a, b) => (a.fields.prix_visite ?? '').compareTo(b.fields.prix_visite ?? ''));
+    });
+  }
+
+  void sortBySp98PrixDescending() {
+    setState(() {
+      apiResponseCT?.records.sort((a, b) => (b.fields.prix_visite ?? '').compareTo(a.fields.prix_visite ?? ''));
+    });
+  }
+
+
+  void toggleSortOrder() {
+    setState(() {
+      ascendingOrder = !ascendingOrder;
+      if (ascendingOrder) {
+        sortBySp98PrixAscending();
+      } else {
+        sortBySp98PrixDescending();
+      }
+    });
+  }
+  */
+  void toggleDIstSortOrder() {
+    setState(() {
+      DistascendingOrder = !DistascendingOrder;
+      if (ascendingOrder) {
+        sortByDistAscending();
+      } else {
+        sortByDistDescending();
+      }
+    });
   }
 
 /*
@@ -226,5 +270,4 @@ class controletechniqueState extends State<controletechnique> {
           : b['dist'].compareTo(a['dist']));
     });
   }
-*/
-}
+*/}

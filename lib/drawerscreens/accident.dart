@@ -2,12 +2,11 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import 'package:flutter/cupertino.dart';
+
+import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
 import '../constants.dart';
-import '../constants.dart';
 import '../text_FR.dart';
-import '../utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -121,7 +120,7 @@ class accidentState extends State<accident> {
                                       children: [
                                         ElevatedButton(
                                             onPressed: () {
-
+                                             StoreLaunch();
                                             },
                                             style: ElevatedButton.styleFrom(
                                               primary: color_background2,
@@ -471,6 +470,22 @@ class accidentState extends State<accident> {
                 margin: EdgeInsets.all(10),
               ))),
     );
+  }
+
+  void StoreLaunch(){
+    if (Platform.isAndroid || Platform.isIOS) {
+      final appId = Platform.isAndroid ? 'YOUR_ANDROID_PACKAGE_ID' : 'YOUR_IOS_APP_ID';
+      final url = Uri.parse(
+        Platform.isAndroid
+            ? "market://details?id=$appId"
+            : "https://apps.apple.com/app/id$appId",
+      );
+      launchUrl(
+        url,
+        mode: LaunchMode.externalApplication,
+      );
+    }
+    return;
   }
   
 }

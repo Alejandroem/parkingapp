@@ -1,7 +1,6 @@
 
 import 'dart:async';
 import 'dart:convert';
-import '../api_defribilateur/api_defribilateur_response.dart';
 import '../services/location_service.dart';
 import 'package:http_requests/http_requests.dart';
 import 'api_waze_response.dart';

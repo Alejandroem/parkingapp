@@ -5,7 +5,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../services/location_service.dart';
-import '../constants.dart';
 import 'api_waze_call.dart';
 import 'api_waze_response.dart';
 
@@ -88,7 +87,7 @@ class WazeState extends State<Waze> {
                   scale: 2,
                   child: CircularProgressIndicator(
                     //value:0,
-                    color: Colors.deepPurple,
+                    color: Colors.teal,
                     semanticsLabel: 'en cours d interrogation',
                   ),
                 ),

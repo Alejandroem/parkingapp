@@ -1,5 +1,4 @@
 
-import 'package:flutter/material.dart';
 
 
 // Textes pour la page screen1
