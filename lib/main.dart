@@ -84,7 +84,9 @@ class MyApp extends StatelessWidget {
               home: HomePage(),
             ),
             providers: [
-              ChangeNotifierProvider(create: (context) => screenIndexProvider())
+              ChangeNotifierProvider(
+                create: (context) => screenIndexProvider(),
+              )
             ],
           ),
         ),

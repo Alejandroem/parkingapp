@@ -4,12 +4,16 @@
 
 // ignore_for_file: public_member_api_docs
 
+import 'dart:developer';
+
 import 'package:buttons_tabbar/buttons_tabbar.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_mapbox_navigation/flutter_mapbox_navigation.dart';
 import 'package:kdgaugeview/kdgaugeview.dart';
+import 'package:mycar/widgets/location_search.dart';
 import 'package:mycar/widgets/parking_browser.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/foundation.dart';
@@ -22,6 +26,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../constants.dart';
 import '../databases/databases.dart';
+import 'application/cubits/location_cubit.dart';
+import 'domain/models/user_locations.dart';
+import 'domain/services/directions_service.dart';
 import 'widgets/navigation_map.dart';
 
 // void main() => runApp(const MaterialApp(home: screen2_road()));
@@ -142,6 +149,7 @@ class screen2_roadState extends State<screen2_road> {
   }
 
   GoogleMapController? _controller;
+  TextEditingController _locationController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -151,146 +159,206 @@ class screen2_roadState extends State<screen2_road> {
 
     var platform = Theme.of(context).platform;
 
-    return Scaffold(
-      body: SafeArea(
-        child: DefaultTabController(
-          length: 4,
-          child: Column(
-            children: <Widget>[
-              Container(
-                color: color_background2,
-                height: 40,
-                width: _width,
-                child: Center(
-                  child: ButtonsTabBar(
-                    backgroundColor: color_background2,
-                    unselectedBackgroundColor: color_background2,
-                    unselectedLabelStyle: TextStyle(
-                        color: Colors.white, fontWeight: FontWeight.normal),
-                    labelStyle: TextStyle(
-                        color: Colors.yellow, fontWeight: FontWeight.bold),
-                    tabs: [
-                      Tab(
-                        icon: Icon(FontAwesomeIcons.road, size: 18),
-                        //  text: "Dest.",
+    return BlocListener<LocationCubit, UserLocation>(
+      listener: (context, state) {
+        log('listener: $state');
+        if (state.currentLocation != null && state.lastTappedLocation != null) {
+          _mapController.buildRoute(
+            wayPoints: [
+              WayPoint(
+                name: "Start",
+                latitude: state.currentLocation!.latitude,
+                longitude: state.currentLocation!.longitude,
+              ),
+              WayPoint(
+                name: "End",
+                latitude: state.lastTappedLocation!.latitude,
+                longitude: state.lastTappedLocation!.longitude,
+              ),
+            ],
+          );
+        }
+      },
+      child: Stack(
+        children: [
+          Screen_freeNav(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 32, 100, 8),
+            child: TextField(
+              onTap: () async {
+                String? result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => LocationSearch(),
+                  ),
+                );
+                if ((result ?? "").isNotEmpty) {
+                  _locationController.text = result!;
+                } else {
+                  _locationController.clear();
+                }
+              },
+              controller: _locationController,
+              decoration: InputDecoration(
+                hintText: 'Enter destination',
+                //border color white
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10.0),
+                ),
+                hintStyle: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14.0,
+                ),
+                //add a button to clean this at the end
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    _locationController.clear();
+                    _mapController.clearRoute();
+                    _mapController.startFreeDrive();
+                    //hide keyboard
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  },
+                  icon: const Icon(
+                    Icons.clear,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+    );
+    /* child: Scaffold( 
+        body: SafeArea(
+          child: DefaultTabController(
+            length: 4,
+            child: Column(
+              children: <Widget>[
+                /* Container(
+                  color: color_background2,
+                  height: 40,
+                  width: _width,
+                  child: Center(
+                    child: ButtonsTabBar(
+                      backgroundColor: color_background2,
+                      unselectedBackgroundColor: color_background2,
+                      unselectedLabelStyle: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.normal),
+                      labelStyle: TextStyle(
+                          color: Colors.yellow, fontWeight: FontWeight.bold),
+                      tabs: [
+                        Tab(
+                          icon: Icon(FontAwesomeIcons.road, size: 18),
+                          //  text: "Dest.",
+                        ),
+                        Tab(
+                          icon: Icon(FontAwesomeIcons.google, size: 18),
+                          // text: "Google",
+                        ),
+                        Tab(
+                          icon: Icon(FontAwesomeIcons.waze, size: 18),
+                          //   text: "Waze",
+                        ),
+                        Tab(
+                          icon: Icon(FontAwesomeIcons.car, size: 18),
+                          //  text: "Traffic",
+                        ),
+                      ],
+                    ),
+                  ),
+                ), */
+                
+                /* Expanded(
+                  child: TabBarView(
+                    children: <Widget>[
+                      Center(
+                        child: Screen_freeNav(),
                       ),
-                      Tab(
-                        icon: Icon(FontAwesomeIcons.google, size: 18),
-                        // text: "Google",
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "A T T E N T I O N",
+                              style: TextStyle_large,
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              "En cliquant sur le bouton ci-dessous\nVous serez redidrigé\nvers l'application Google Map",
+                              style: TextStyle_small,
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                              width: 200.0,
+                              height: 100.0,
+                              child: ElevatedButton(
+                                child: Text("Google Maps",
+                                    style: TextStyle_regular_white),
+                                style: ElevatedButton.styleFrom(
+                                  primary: color_background2,
+                                  elevation: 0,
+                                ),
+                                onPressed: () {
+                                  GMaps();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      Tab(
-                        icon: Icon(FontAwesomeIcons.waze, size: 18),
-                        //   text: "Waze",
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisSize: MainAxisSize.max,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "A T T E N T I O N",
+                              style: TextStyle_large,
+                              textAlign: TextAlign.center,
+                            ),
+                            Text(
+                              "En cliquant sur le bouton ci-dessous\nVous serez redidrigé\nvers l'application Waze",
+                              style: TextStyle_small,
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(
+                              width: 200.0,
+                              height: 100.0,
+                              child: ElevatedButton(
+                                child:
+                                    Text("Waze", style: TextStyle_regular_white),
+                                style: ElevatedButton.styleFrom(
+                                  primary: color_background2,
+                                  elevation: 0,
+                                ),
+                                onPressed: () {
+                                  Waze();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                      Tab(
-                        icon: Icon(FontAwesomeIcons.car, size: 18),
-                        //  text: "Traffic",
+                      Center(
+                        child: Screen_Traffic(),
                       ),
                     ],
                   ),
-                ),
-              ),
-              Container(
-                color: color_background2,
-                height: 50,
-                width: _width,
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Votre destination',
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: TabBarView(
-                  children: <Widget>[
-                    Center(
-                      child: Screen_freeNav(),
-                    ),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "A T T E N T I O N",
-                            style: TextStyle_large,
-                            textAlign: TextAlign.center,
-                          ),
-                          Text(
-                            "En cliquant sur le bouton ci-dessous\nVous serez redidrigé\nvers l'application Google Map",
-                            style: TextStyle_small,
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(
-                            width: 200.0,
-                            height: 100.0,
-                            child: ElevatedButton(
-                              child: Text("Google Maps",
-                                  style: TextStyle_regular_white),
-                              style: ElevatedButton.styleFrom(
-                                primary: color_background2,
-                                elevation: 0,
-                              ),
-                              onPressed: () {
-                                GMaps();
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        mainAxisSize: MainAxisSize.max,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            "A T T E N T I O N",
-                            style: TextStyle_large,
-                            textAlign: TextAlign.center,
-                          ),
-                          Text(
-                            "En cliquant sur le bouton ci-dessous\nVous serez redidrigé\nvers l'application Waze",
-                            style: TextStyle_small,
-                            textAlign: TextAlign.center,
-                          ),
-                          SizedBox(
-                            width: 200.0,
-                            height: 100.0,
-                            child: ElevatedButton(
-                              child:
-                                  Text("Waze", style: TextStyle_regular_white),
-                              style: ElevatedButton.styleFrom(
-                                primary: color_background2,
-                                elevation: 0,
-                              ),
-                              onPressed: () {
-                                Waze();
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Center(
-                      child: Screen_Traffic(),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                ), */
+              ],
+            ),
           ),
         ),
       ),
-    );
+    );*/
   }
 
   late MapBoxNavigationViewController _mapController;
@@ -303,18 +371,18 @@ class screen2_roadState extends State<screen2_road> {
     options.initialLongitude = 2.368245;
     options.zoom = 18.0;
 
-    return Container(
-      color: Colors.grey,
-      child: MapBoxNavigationView(
-        options: options,
-        onRouteEvent: (value) {
-          print('RouteEvent: $value');
-        },
-        onCreated: (MapBoxNavigationViewController controller) async {
-          _mapController = controller;
-          controller.initialize();
-        },
-      ),
+    return MapBoxNavigationView(
+      options: options,
+      onRouteEvent: (value) {
+        print('RouteEvent: $value');
+      },
+      onCreated: (MapBoxNavigationViewController controller) async {
+        _mapController = controller;
+        controller.initialize();
+        await controller.startFreeDrive(
+          options: options,
+        );
+      },
     );
   }
 
@@ -457,6 +525,8 @@ class screen2_roadState extends State<screen2_road> {
   void dispose() {
     _activityStreamController.close();
     _activityStreamSubscription?.cancel();
+    _mapController.dispose();
+    _locationController.dispose();
     super.dispose();
   }
 

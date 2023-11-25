@@ -134,8 +134,9 @@ class MovementCubit extends Cubit<MovementState> {
             maxSpeed: 0,
           ),
         ) {
+    log("I passed here");
     //subscribeToLocationEvents();
-    requestPermissionsAndStartTracking();
+    //requestPermissionsAndStartTracking();
   }
 
   void subscribeToLocationEvents() {
@@ -217,7 +218,7 @@ class MovementCubit extends Cubit<MovementState> {
       },
     );
 
-    if (kDebugMode) {
+    if (kDebugMode && false) {
       _activityStreamSubscription = fakeStream.listen(
         onEvent,
         onError: (e) {

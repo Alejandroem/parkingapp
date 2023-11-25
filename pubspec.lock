@@ -49,6 +49,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.11.0"
+  background_fetch:
+    dependency: "direct main"
+    description:
+      name: background_fetch
+      sha256: f70b28a0f7a3156195e9742229696f004ea3bf10f74039b7bf4c78a74fbda8a4
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
   badges:
     dependency: "direct main"
     description:
@@ -470,6 +478,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  flutter_background_geolocation:
+    dependency: "direct main"
+    description:
+      name: flutter_background_geolocation
+      sha256: "2cf8bb73ff5caf98d6a1ad4e5aa8a690f084c70c4fa3d33c26aabee2ae3798ae"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.13.4"
   flutter_bloc:
     dependency: "direct main"
     description:
@@ -546,10 +562,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_osm_interface
-      sha256: acf22cf06c3550a565b0d4f63474275f24a1aaad8f32e127d6ea32957a791ef8
+      sha256: "9d1c747635ce8a58ceb623825f0fe4d469272645458ce839d466f9d03dff2729"
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.1"
+    version: "0.7.0"
   flutter_osm_plugin:
     dependency: "direct main"
     description:

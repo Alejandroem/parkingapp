@@ -20,7 +20,8 @@ import 'package:flutter_foreground_task/ui/will_start_foreground_task.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart' as googlemaps;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-import 'package:poly_geofence_service/poly_geofence_service.dart' as poly_geofence;
+import 'package:poly_geofence_service/poly_geofence_service.dart'
+    as poly_geofence;
 import 'package:poly_geofence_service/models/poly_geofence.dart';
 
 import 'package:geocoding/geocoding.dart' as geocoding;
@@ -41,25 +42,27 @@ import '../services/count-down_timer.dart';
 import '../services/location_service.dart';
 import '../amendes/amendes_list.dart';
 import '../screen2_road.dart';
+import 'domain/models/lat_lng.dart';
+import 'widgets/parking_map.dart';
 
 class screen1_parking extends StatefulWidget {
-  const screen1_parking(
-      {super.key,
-        this.androidDrawer,
-        this.immatriculation,
-        this.lat,
-        this.lon,
-        this.isInZone,
-        this.CurrentActivity,
-        this.expResident,
-        this.expVisiteur,
-        this.expHandi,
-        this.LastAdresse,
-        this.residential_zone,
-        this.econnect,
-        this.bluetooth,
-        this.newcarpark,
-     });
+  const screen1_parking({
+    super.key,
+    this.androidDrawer,
+    this.immatriculation,
+    this.lat,
+    this.lon,
+    this.isInZone,
+    this.CurrentActivity,
+    this.expResident,
+    this.expVisiteur,
+    this.expHandi,
+    this.LastAdresse,
+    this.residential_zone,
+    this.econnect,
+    this.bluetooth,
+    this.newcarpark,
+  });
 
   final Widget? androidDrawer;
   final String? immatriculation;
@@ -159,8 +162,6 @@ class screen1_parkingState extends State<screen1_parking> {
   /// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
   /// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-
-
   ///
   /// BEGIN : activity recognition
   ///
@@ -176,7 +177,6 @@ class screen1_parkingState extends State<screen1_parking> {
   ///
   /// END : activity recognition
   ///
-
 
   ///
   /// BEGIN : Geofence
@@ -199,7 +199,6 @@ class screen1_parkingState extends State<screen1_parking> {
   ///
   /// END : Geofence
   ///
-
 
   @override
   void initState() {
@@ -240,7 +239,7 @@ class screen1_parkingState extends State<screen1_parking> {
     _date_handi = widget.expHandi as String;
 
     print('-------------------------dates--------------');
-    print ("_date_resident : $_date_resident");
+    print("_date_resident : $_date_resident");
 
     _plate = widget.immatriculation ?? ".";
 
@@ -258,10 +257,7 @@ class screen1_parkingState extends State<screen1_parking> {
         polygon: polyGeofenceLatLng,
       ),
     ];
-
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -269,9 +265,9 @@ class screen1_parkingState extends State<screen1_parking> {
     _width = size.width;
     _height = size.height;
 
- //   print("_date_resident : $_date_resident");
- //   print("_date_visiteur : $_date_visiteur");
- //   print("_date_handi : $_date_handi");
+    //   print("_date_resident : $_date_resident");
+    //   print("_date_visiteur : $_date_visiteur");
+    //   print("_date_handi : $_date_handi");
 
     _date_resident = widget.expResident as String;
     _date_visiteur = widget.expVisiteur as String;
@@ -291,7 +287,7 @@ class screen1_parkingState extends State<screen1_parking> {
           channelId: 'geofence_service_notification_channel',
           channelName: 'Geofence Service Notification',
           channelDescription:
-          'This notification appears when the geofence service is running in the background.',
+              'This notification appears when the geofence service is running in the background.',
           channelImportance: NotificationChannelImportance.LOW,
           priority: NotificationPriority.LOW,
           isSticky: false,
@@ -312,7 +308,7 @@ class screen1_parkingState extends State<screen1_parking> {
               SizedBox(
                 height: _height - 148,
                 width: _width,
-                 child: IndexedStack(
+                child: IndexedStack(
                     alignment: Alignment.center,
                     index: this.selectedIndex,
                     children: <Widget>[
@@ -413,34 +409,32 @@ class screen1_parkingState extends State<screen1_parking> {
 
       case 1:
 
-      /// the user is in a car on a bicycle
-      ///
-      /// we display Screen2_road.dart
+        /// the user is in a car on a bicycle
+        ///
+        /// we display Screen2_road.dart
 
         Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => screen2_road()));
+            context, MaterialPageRoute(builder: (context) => screen2_road()));
         break;
 
       case 2:
 
-      /// the vehicule is just park
-      /// we tacke location and DateTime
-      /// and we show screen1_parking_State1
-      ///
+        /// the vehicule is just park
+        /// we tacke location and DateTime
+        /// and we show screen1_parking_State1
+        ///
 
-      /// get the location
-      //  final loc = await LocationService().getPosition();
+        /// get the location
+        //  final loc = await LocationService().getPosition();
 
-      // _lat = loc?.latitude ?? 48.873821;
-      // _lon = loc?.longitude ?? 2.315757;
+        // _lat = loc?.latitude ?? 48.873821;
+        // _lon = loc?.longitude ?? 2.315757;
 
-      /// get the adresse
-      ///
+        /// get the adresse
+        ///
         if (_lat != null) {
           List<geocoding.Placemark> placemarks =
-          await geocoding.placemarkFromCoordinates(_lat, _lon);
+              await geocoding.placemarkFromCoordinates(_lat, _lon);
           _adr = placemarks.reversed.last.street.toString() +
               " - " +
               placemarks.reversed.last.postalCode.toString() +
@@ -511,15 +505,15 @@ class screen1_parkingState extends State<screen1_parking> {
     setState(() {
       switch (polyGeofenceStatus) {
         case poly_geofence.PolyGeofenceStatus.ENTER:
-        // (inpolygeofence == 0) ? inpolygeofence = 0 : inpolygeofence = 2;
+          // (inpolygeofence == 0) ? inpolygeofence = 0 : inpolygeofence = 2;
           inpolygeofence = 0;
           break;
         case poly_geofence.PolyGeofenceStatus.DWELL:
-        // (inpolygeofence == 0) ? inpolygeofence = 0 : inpolygeofence = 2;
-        // inpolygeofence = 1;
+          // (inpolygeofence == 0) ? inpolygeofence = 0 : inpolygeofence = 2;
+          // inpolygeofence = 1;
           break;
         case poly_geofence.PolyGeofenceStatus.EXIT:
-        // (inpolygeofence == 0) ? inpolygeofence = 0 : inpolygeofence = 2;
+          // (inpolygeofence == 0) ? inpolygeofence = 0 : inpolygeofence = 2;
           inpolygeofence = 2;
           break;
       }
@@ -531,15 +525,13 @@ class screen1_parkingState extends State<screen1_parking> {
     //  print('location: ${location.toJson()}');
     if (CarState != 99)
       setState(() {
-        (location.speed < 5)
-            ? _speed = 0
-            : _speed = location.speed * 3.6;
+        (location.speed < 5) ? _speed = 0 : _speed = location.speed * 3.6;
         _speedAccuracy = location.speedAccuracy;
         _lat = location.latitude;
         _lon = location.longitude;
-       guagekey.currentState!.updateSpeed(_speed);
+        guagekey.currentState?.updateSpeed(_speed);
 
-     //   Container_Speedometer();
+        //   Container_Speedometer();
         Container_GMaps_ZoneResidentielle();
         Container_GMaps();
       });
@@ -621,7 +613,6 @@ class screen1_parkingState extends State<screen1_parking> {
     );
   }
 
-
   ///*
   /// screen1_parking_State1 : "vehicule just parked, control if the vehicule is inside or outside his residential zone or his private park"
   ///
@@ -662,7 +653,6 @@ class screen1_parkingState extends State<screen1_parking> {
     );
   }
 
-
   ///* -------------------------------------------------------------------------
   ///* -------------------------------------------------------------------------
   ///* -------------------------------------------------------------------------
@@ -672,7 +662,6 @@ class screen1_parkingState extends State<screen1_parking> {
   /// --------------------------------------------------------------------------
   ///* -------------------------------------------------------------------------
   ///* -------------------------------------------------------------------------
-
 
   Container_Entete() {
     return Container(
@@ -695,7 +684,7 @@ class screen1_parkingState extends State<screen1_parking> {
       child: Column(
         children: [
           SizedBox(height: 2.0),
-          Text ("Véhicule : $_plate", style: TextStyle_regular),
+          Text("Véhicule : $_plate", style: TextStyle_regular),
           SizedBox(height: 2.0),
           Text(
               (CarState == 2)
@@ -703,7 +692,7 @@ class screen1_parkingState extends State<screen1_parking> {
                   : "Votre dernier stationnement",
               style: TextStyle_regular),
           SizedBox(height: 2.0),
-          Text (_adr.toString() ?? "", style: TextStyle_regular),
+          Text(_adr.toString() ?? "", style: TextStyle_regular),
         ],
       ),
     );
@@ -711,6 +700,18 @@ class screen1_parkingState extends State<screen1_parking> {
 
   Container_GMaps() {
     return Container(
+      margin: EdgeInsets.all(2),
+      padding: EdgeInsets.all(5),
+      height: _height - 495,
+      width: _width,
+      child: ParkingMap(
+        LatitudeLongitude(
+          _lat ?? 48.873821,
+          _lon ?? 2.315757,
+        ),
+      ),
+    );
+    /* return Container(
       margin: EdgeInsets.all(2),
       padding: EdgeInsets.all(5),
       height: _height - 495,
@@ -768,286 +769,283 @@ class screen1_parkingState extends State<screen1_parking> {
           });
         },
       ),
-    );
+    ); */
   }
 
   Container_CheckControl() {
     return Container(
-        margin: EdgeInsets.all(2),
-        padding: EdgeInsets.all(5),
-        height: 215,
-        decoration: BoxDecoration(
-          color: color_background,
-          border: Border.all(color: color_border),
-          borderRadius: BorderRadius.circular(border_radius),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey,
-              offset: Offset(0.0, 1.0), //(x,y)
-              blurRadius: 6.0,
-            ),
-          ],
-        ),
-        child: Column(children: [
-          Text("Check Control", style: TextStyle_regular),
-
-          Divider(),
-
-          Container(
-            height:95,
-            child: ListView(
-                      scrollDirection: Axis.horizontal,
-                      shrinkWrap: true,
-                      children: <Widget>[
-                        Container(
-                          margin: const EdgeInsets.all(5),
-                          width: 90,
-                          color: Colors.grey.shade200,
-                          child: SizedBox.fromSize(
-                            size: Size(85, 85),
-                            child: Material(
-                              color: color_background,
-                              child: InkWell(
-                                splashColor: color_background2,
-                                onTap: () {
-                                  Navigator.push(   context,
-                                    MaterialPageRoute(builder: (context) => PayByPhoneBrowser(immatriculation: _plate, categoriepayment: "Résidentiel")));
-                                },
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Icon(FontAwesomeIcons.squareParking,
-                                          size: 48, color: Colors.green),
-                                      Text("Résidentiel",
-                                          style: TextStyle_veryverysmall), // <-- Text
-                                    ],
-                                  ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        Container(
-                          margin: const EdgeInsets.all(5),
-                          width: 90,
-                          color: Colors.grey.shade200,
-                          child: SizedBox.fromSize(
-                            size: Size(85, 85),
-                            child: Material(
-                              color: color_background,
-                              child: InkWell(
-                                splashColor: color_background2,
-                                onTap: () {
-                                  Navigator.push(context,
-                                      MaterialPageRoute(builder: (context) => PayByPhoneBrowser(immatriculation: _plate, categoriepayment: "Visiteur")));
-                                },
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Icon(FontAwesomeIcons.squareParking,
-                                          size: 48, color: Colors.green),
-                                      Text("Payant",
-                                          style: TextStyle_veryverysmall), // <-- Text
-                                    ],
-                                  ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        Container(
-                          margin: const EdgeInsets.all(5),
-                          width: 90,
-                          color: Colors.grey.shade200,
-                          child: SizedBox.fromSize(
-                            size: Size(85, 85),
-                            child: Material(
-                              color: color_background,
-                              child: InkWell(
-                                splashColor: color_background2,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => list_amendes()),
-                                  );
-                                },
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(FontAwesomeIcons.fileInvoiceDollar,
-                                        size: 43, color: Colors.green),
-                                    Text("FPS",
-                                        style: TextStyle_veryverysmall), // <-- Text
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        Container(
-                          margin: const EdgeInsets.all(5),
-                          width: 90,
-                          color: Colors.grey.shade200,
-                          child: SizedBox.fromSize(
-                            size: Size(85, 85),
-                            child: Material(
-                              color: color_background,
-                              child: InkWell(
-                                splashColor: color_background2,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => list_amendes()),
-                                  );
-                                },
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(FontAwesomeIcons.fileInvoiceDollar,
-                                        size: 43, color: Colors.redAccent),
-                                    Text("Amendes",
-                                        style: TextStyle_veryverysmall), // <-- Text
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        Container(
-                          margin: const EdgeInsets.all(5),
-                          width: 90,
-                          color: Colors.grey.shade200,
-                          child: SizedBox.fromSize(
-                            size: Size(85, 85),
-                            child: Material(
-                              color: color_background,
-                              child: InkWell(
-                                splashColor: color_background2,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => const mespapiers()),
-                                  );
-                                },
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(FontAwesomeIcons.fileInvoice,
-                                        size: 43, color: Colors.green),
-                                    Text("Documents",
-                                        style: TextStyle_veryverysmall), // <-- Text
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: const EdgeInsets.all(5),
-                          width: 90,
-                          color: Colors.grey.shade200,
-                          child: SizedBox.fromSize(
-                            size: Size(85, 85),
-                            child: Material(
-                              color: color_background,
-                              child: InkWell(
-                                splashColor: color_background2,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => list_amendes()),
-                                  );
-                                },
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(Icons.car_rental,
-                                        size: 43, color: Colors.redAccent),
-                                    Text("Controle",
-                                        style: TextStyle_veryverysmall), // <-- Text
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        Container(
-                          margin: const EdgeInsets.all(5),
-                          width: 90,
-                          color: Colors.grey.shade200,
-                          child: SizedBox.fromSize(
-                            size: Size(85, 85),
-                            child: Material(
-                              color: color_background,
-                              child: InkWell(
-                                splashColor: color_background2,
-                                onTap: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                        builder: (context) => list_amendes()),
-                                  );
-                                },
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Icon(Icons.car_repair,
-                                        size: 43, color: Colors.redAccent),
-                                    Text("Révision",
-                                        style: TextStyle_veryverysmall), // <-- Text
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        ],
-                      ),
+      margin: EdgeInsets.all(2),
+      padding: EdgeInsets.all(5),
+      height: 215,
+      decoration: BoxDecoration(
+        color: color_background,
+        border: Border.all(color: color_border),
+        borderRadius: BorderRadius.circular(border_radius),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey,
+            offset: Offset(0.0, 1.0), //(x,y)
+            blurRadius: 6.0,
           ),
-
-
-
+        ],
+      ),
+      child: Column(
+        children: [
+          Text("Check Control", style: TextStyle_regular),
           Divider(),
-          Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              mainAxisSize: MainAxisSize.max,
-              //    crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
+          Container(
+            height: 95,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              children: <Widget>[
                 Container(
-                  height: 38,
-                  width: _width - 80,
-                  decoration: BoxDecoration(
+                  margin: const EdgeInsets.all(5),
+                  width: 90,
+                  color: Colors.grey.shade200,
+                  child: SizedBox.fromSize(
+                    size: Size(85, 85),
+                    child: Material(
                       color: color_background,
-                      border: Border.all(
-                        color: color_background,
+                      child: InkWell(
+                        splashColor: color_background2,
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PayByPhoneBrowser(
+                                      immatriculation: _plate,
+                                      categoriepayment: "Résidentiel")));
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(FontAwesomeIcons.squareParking,
+                                size: 48, color: Colors.green),
+                            Text("Résidentiel",
+                                style: TextStyle_veryverysmall), // <-- Text
+                          ],
+                        ),
                       ),
-                      borderRadius: BorderRadius.all(Radius.circular(20))),
-                  child: TextButton(
-                    child: Text("Cliquez ici si vous avez reçu une amende",
-                        style: TextStyle_verysmall),
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => AmendesScanner()),
-                      );
-                    },
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.all(5),
+                  width: 90,
+                  color: Colors.grey.shade200,
+                  child: SizedBox.fromSize(
+                    size: Size(85, 85),
+                    child: Material(
+                      color: color_background,
+                      child: InkWell(
+                        splashColor: color_background2,
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => PayByPhoneBrowser(
+                                      immatriculation: _plate,
+                                      categoriepayment: "Visiteur")));
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(FontAwesomeIcons.squareParking,
+                                size: 48, color: Colors.green),
+                            Text("Payant",
+                                style: TextStyle_veryverysmall), // <-- Text
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.all(5),
+                  width: 90,
+                  color: Colors.grey.shade200,
+                  child: SizedBox.fromSize(
+                    size: Size(85, 85),
+                    child: Material(
+                      color: color_background,
+                      child: InkWell(
+                        splashColor: color_background2,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => list_amendes()),
+                          );
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(FontAwesomeIcons.fileInvoiceDollar,
+                                size: 43, color: Colors.green),
+                            Text("FPS",
+                                style: TextStyle_veryverysmall), // <-- Text
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.all(5),
+                  width: 90,
+                  color: Colors.grey.shade200,
+                  child: SizedBox.fromSize(
+                    size: Size(85, 85),
+                    child: Material(
+                      color: color_background,
+                      child: InkWell(
+                        splashColor: color_background2,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => list_amendes()),
+                          );
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(FontAwesomeIcons.fileInvoiceDollar,
+                                size: 43, color: Colors.redAccent),
+                            Text("Amendes",
+                                style: TextStyle_veryverysmall), // <-- Text
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.all(5),
+                  width: 90,
+                  color: Colors.grey.shade200,
+                  child: SizedBox.fromSize(
+                    size: Size(85, 85),
+                    child: Material(
+                      color: color_background,
+                      child: InkWell(
+                        splashColor: color_background2,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const mespapiers()),
+                          );
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(FontAwesomeIcons.fileInvoice,
+                                size: 43, color: Colors.green),
+                            Text("Documents",
+                                style: TextStyle_veryverysmall), // <-- Text
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.all(5),
+                  width: 90,
+                  color: Colors.grey.shade200,
+                  child: SizedBox.fromSize(
+                    size: Size(85, 85),
+                    child: Material(
+                      color: color_background,
+                      child: InkWell(
+                        splashColor: color_background2,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => list_amendes()),
+                          );
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(Icons.car_rental,
+                                size: 43, color: Colors.redAccent),
+                            Text("Controle",
+                                style: TextStyle_veryverysmall), // <-- Text
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  margin: const EdgeInsets.all(5),
+                  width: 90,
+                  color: Colors.grey.shade200,
+                  child: SizedBox.fromSize(
+                    size: Size(85, 85),
+                    child: Material(
+                      color: color_background,
+                      child: InkWell(
+                        splashColor: color_background2,
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => list_amendes()),
+                          );
+                        },
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Icon(Icons.car_repair,
+                                size: 43, color: Colors.redAccent),
+                            Text("Révision",
+                                style: TextStyle_veryverysmall), // <-- Text
+                          ],
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ],
+            ),
+          ),
+          Divider(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisSize: MainAxisSize.max,
+            //    crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                height: 38,
+                width: _width - 80,
+                decoration: BoxDecoration(
+                    color: color_background,
+                    border: Border.all(
+                      color: color_background,
+                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(20))),
+                child: TextButton(
+                  child: Text("Cliquez ici si vous avez reçu une amende",
+                      style: TextStyle_verysmall),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AmendesScanner()),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ],
-        ),
+      ),
     );
   }
-
 
   ///*
   /// Lower Container Stationnement
@@ -1080,86 +1078,90 @@ class screen1_parkingState extends State<screen1_parking> {
           Divider(height: 10),
           (inpolygeofence == 0)
               ? Column(
-            children: [
-              Divider(height: 10),
-              Text('Vous êtes dans votre zone résidentielle', style: TextStyle_regular),
-              Divider(height: 10),
-              Text('votre stationnement est payé', style: TextStyle_regular),
-              Divider(height: 10),
-              Text("Vous n'avez rien à faire", style: TextStyle_regular),
-              Divider(height: 10),
-              IconButton(
-                icon: Icon(
-                  Icons.check,
-                  size: 36,
-                  color: Colors.green,
-                ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const DevEnCours()),
-                  );
-                },
-              ),
-            ],
-          )
+                  children: [
+                    Divider(height: 10),
+                    Text('Vous êtes dans votre zone résidentielle',
+                        style: TextStyle_regular),
+                    Divider(height: 10),
+                    Text('votre stationnement est payé',
+                        style: TextStyle_regular),
+                    Divider(height: 10),
+                    Text("Vous n'avez rien à faire", style: TextStyle_regular),
+                    Divider(height: 10),
+                    IconButton(
+                      icon: Icon(
+                        Icons.check,
+                        size: 36,
+                        color: Colors.green,
+                      ),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const DevEnCours()),
+                        );
+                      },
+                    ),
+                  ],
+                )
               : Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            mainAxisSize: MainAxisSize.max,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Divider(height: 10),
-              Text('Vous êtes hors de votre zone résidentielle',
-                  style: TextStyle_small),
-              Divider(height: 10),
-              Container(
-                height: 40,
-                width: _width - 80,
-                decoration: BoxDecoration(
-                    color: Colors.green,
-                    border: Border.all(
-                      color: color_background,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Divider(height: 10),
+                    Text('Vous êtes hors de votre zone résidentielle',
+                        style: TextStyle_small),
+                    Divider(height: 10),
+                    Container(
+                      height: 40,
+                      width: _width - 80,
+                      decoration: BoxDecoration(
+                          color: Colors.green,
+                          border: Border.all(
+                            color: color_background,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(20))),
+                      child: TextButton(
+                        child: Text(
+                            "Cliquez ici pour payer votre stationnement",
+                            style: TextStyle_verysmall),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => webview2(
+                                  url:
+                                      "https://m2.paybyphone.fr/parking/start/location",
+                                  title: "PayByPhone"),
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                child: TextButton(
-                  child: Text(
-                      "Cliquez ici pour payer votre stationnement",
-                      style: TextStyle_verysmall),
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => webview2(
-                          url: "https://m2.paybyphone.fr/parking/start/location",
-                          title: "PayByPhone"),
+                    Divider(height: 10),
+                    Container(
+                      height: 40,
+                      width: _width - 80,
+                      decoration: BoxDecoration(
+                          color: Colors.blue,
+                          border: Border.all(
+                            color: color_background,
+                          ),
+                          borderRadius: BorderRadius.all(Radius.circular(20))),
+                      child: TextButton(
+                        child: Text("Cliquez ici pour déclencher un minuteur",
+                            style: TextStyle_verysmall),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CountDownTimer()),
+                          );
+                        },
+                      ),
                     ),
-                    );
-                  },
+                  ],
                 ),
-              ),
-              Divider(height: 10),
-              Container(
-                height: 40,
-                width: _width - 80,
-                decoration: BoxDecoration(
-                    color: Colors.blue,
-                    border: Border.all(
-                      color: color_background,
-                    ),
-                    borderRadius: BorderRadius.all(Radius.circular(20))),
-                child: TextButton(
-                  child: Text("Cliquez ici pour déclencher un minuteur",
-                      style: TextStyle_verysmall),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CountDownTimer()),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -1224,7 +1226,7 @@ class screen1_parkingState extends State<screen1_parking> {
         myLocationEnabled: true,
         gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
           Factory<OneSequenceGestureRecognizer>(
-                () => EagerGestureRecognizer(),
+            () => EagerGestureRecognizer(),
           ),
         },
         circles: Set.from(
@@ -1299,7 +1301,7 @@ class screen1_parkingState extends State<screen1_parking> {
               onPressed: () {
                 this.selectedIndex = 0;
                 setState(() {
-                 // screen1_parking_State1();
+                  // screen1_parking_State1();
                 });
               },
             ),
@@ -1309,4 +1311,3 @@ class screen1_parkingState extends State<screen1_parking> {
     );
   }
 }
-

@@ -1,5 +1,12 @@
 buildscript {
     ext.kotlin_version = '1.8.0'
+    ext {
+       compileSdkVersion   = 33                // or higher
+       targetSdkVersion    = 33                // or higher
+       minSdkVersion       = 21                // Required minimum
+       appCompatVersion    = "1.4.2"           // or higher
+       playServicesLocationVersion = "21.0.1"  // or higher
+    }
     repositories {
         google()
         mavenCentral()
@@ -7,19 +14,27 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:7.2.2'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"        
+
     }
 }
 
-allprojects {
+allprojects { 
     repositories {
-        google()
-        mavenCentral()
-        configurations.all {
-            resolutionStrategy {
-                force "com.google.android.gms:play-services-location:21.0.1"
+            google()
+            mavenCentral()
+            // [required] flutter_background_geolocation
+            maven { url "${project(':flutter_background_geolocation').projectDir}/libs" }
+            maven { url 'https://developer.huawei.com/repo/' }
+            // [required] background_fetch
+            maven { url "${project(':background_fetch').projectDir}/libs" 
+                configurations.all {
+                    resolutionStrategy {
+                        force "com.google.android.gms:play-services-location:21.0.1"
+                    }
+                }
             }
-        }
+
     }
 }
 

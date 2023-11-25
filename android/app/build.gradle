@@ -22,8 +22,12 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
+
+Project background_geolocation = project(':flutter_background_geolocation')
+apply from: "${background_geolocation.projectDir}/background_geolocation.gradle"
+
 android {
-    compileSdkVersion flutter.compileSdkVersion
+    compileSdkVersion rootProject.ext.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
     compileOptions {
@@ -44,9 +48,9 @@ android {
         applicationId "dev.flutter.mycar"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion 26
+        minSdkVersion rootProject.ext.minSdkVersion
         //minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -56,6 +60,10 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig signingConfigs.debug
+            minifyEnabled true
+            shrinkResources false
+            // background_geolocation requires custom Proguard Rules with minifyEnabled
+            proguardFiles "${background_geolocation.projectDir}/proguard-rules.pro"
         }
     }
 }
@@ -64,7 +72,17 @@ flutter {
     source '../..'
 }
 
+configurations.all{
+    resolutionStrategy{
+        force "com.google.android.gms:play-services-location:21.0.1"
+        force 'androidx.work:work-runtime:2.8.1'
+    }
+ }
+
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation platform("org.jetbrains.kotlin:kotlin-bom:1.8.0")
+    implementation('androidx.work:work-runtime-ktx:2.8.1') {
+        exclude group: 'androidx.work', module: 'work-runtime'
+    }
 }

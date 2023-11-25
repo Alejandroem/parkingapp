@@ -88,9 +88,11 @@ class LocationCubit extends Cubit<UserLocation> {
   }
 
   void updateLastTappedLocationFromAddress(String selection) async {
+    log('updateLastTappedLocationFromAddress: $selection');
     GeocodedLocation? geocodedLocation =
         await _locationService.getGeocodedLocationFromAddress(selection);
     if (geocodedLocation != null) {
+      log('geocodedLocation: $geocodedLocation');
       updateLastTappedLocation(
         geocodedLocation.encodedLocation.latitude,
         geocodedLocation.encodedLocation.longitude,

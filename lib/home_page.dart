@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'ParkingInfo.dart';
+import 'application/cubits/movement_cubit.dart';
 import 'checkspeedcamera.dart';
 import 'screen4_electricity.dart';
 import '../ForceG.dart';
@@ -188,6 +189,7 @@ class HomePageState extends State<HomePage> {
     super.initState();
     requestPermissions(); // check permissions and if not already allowed ask permissions
     _loadSavedData(); // get data from preferenceShared
+    context.read<MovementCubit>().requestPermissionsAndStartTracking();
   }
 
   @override
@@ -258,22 +260,30 @@ class HomePageState extends State<HomePage> {
                   immatriculation: vehiculesinfos[userVehiculeId].plaque ?? "",
                   bluetooth: vehiculesinfos[userVehiculeId].bluetooth ?? 0,
                   econnect: vehiculesinfos[userVehiculeId].econnect ?? 0,
-                  lat: vehiculesinfos[userVehiculeId].last_lattitude ?? 48.873821,
-                  lon: vehiculesinfos[userVehiculeId].last_longitude ?? 2.315757,
+                  lat: vehiculesinfos[userVehiculeId].last_lattitude ??
+                      48.873821,
+                  lon:
+                      vehiculesinfos[userVehiculeId].last_longitude ?? 2.315757,
                   isInZone: vehiculesinfos[userVehiculeId].residentiel_in ?? 0,
-                  residential_zone: vehiculesinfos[userVehiculeId].residentiel_zone ?? "",
+                  residential_zone:
+                      vehiculesinfos[userVehiculeId].residentiel_zone ?? "",
                   CurrentActivity: 0,
-                  expResident: vehiculesinfos[userVehiculeId].date_resident ?? "",
-                  expVisiteur: vehiculesinfos[userVehiculeId].date_visiteur ?? "",
+                  expResident:
+                      vehiculesinfos[userVehiculeId].date_resident ?? "",
+                  expVisiteur:
+                      vehiculesinfos[userVehiculeId].date_visiteur ?? "",
 
                   /// to do : understand why changing vehiculesinfos?[0].date_handi to vehiculesinfos?[userVehiculeId].date_handi create an error !
                   expHandi: vehiculesinfos[0].date_handi ?? "",
                   newcarpark: 0,
-                  LastAdresse: vehiculesinfos[userVehiculeId].last_adresse ?? "",
+                  LastAdresse:
+                      vehiculesinfos[userVehiculeId].last_adresse ?? "",
                 ),
                 screen2_road(
-                  lat: vehiculesinfos[userVehiculeId].last_lattitude ?? 48.873821,
-                  lon: vehiculesinfos[userVehiculeId].last_longitude ?? 2.315757,
+                  lat: vehiculesinfos[userVehiculeId].last_lattitude ??
+                      48.873821,
+                  lon:
+                      vehiculesinfos[userVehiculeId].last_longitude ?? 2.315757,
                 ),
                 screen3_news(),
                 if (vehiculesinfos[userVehiculeId].econnect == 0)
@@ -284,7 +294,8 @@ class HomePageState extends State<HomePage> {
                   screen5_my_vehicule(
                     constructeur: vehiculesinfos[userVehiculeId].groupe ?? "0",
                     api_email: vehiculesinfos[userVehiculeId].api_email ?? "",
-                    api_password: vehiculesinfos[userVehiculeId].api_password ?? "0",
+                    api_password:
+                        vehiculesinfos[userVehiculeId].api_password ?? "0",
                     vin: vehiculesinfos[userVehiculeId].vin ?? "0",
                     marque: vehiculesinfos[userVehiculeId].marque ?? "0",
                     modele: vehiculesinfos[userVehiculeId].model ?? "0",
@@ -501,7 +512,9 @@ class HomePageState extends State<HomePage> {
             title: const Text('Partager'),
             onTap: () {
               Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => ParkingInformations()));
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => ParkingInformations()));
             },
           ),
           ListTile(
