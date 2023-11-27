@@ -84,6 +84,21 @@ class MyApp extends StatelessWidget {
               home: HomePage(),
             ),
             providers: [
+              BlocProvider<NavigationCubit>(
+                create: (context) => NavigationCubit(),
+              ),
+              BlocProvider<LocationCubit>(
+                create: (context) => LocationCubit(
+                  context.read<UserLocationService>(),
+                  context.read<DirectionsService>(),
+                ),
+              ),
+              BlocProvider<MovementCubit>(
+                create: (context) => MovementCubit(
+                  context.read<UserLocationService>(),
+                  context.read<ActivityService>(),
+                ),
+              ),
               ChangeNotifierProvider(
                 create: (context) => screenIndexProvider(),
               )

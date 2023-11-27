@@ -144,8 +144,8 @@ class screen2_roadState extends State<screen2_road> {
           .listen(_onActivityReceive);
     });
 
-    _lat = widget.lat as double;
-    _lon = widget.lon as double;
+    _lat = widget.lat ?? 0.0 as double;
+    _lon = widget.lon ?? 0.0 as double;
   }
 
   GoogleMapController? _controller;
@@ -159,78 +159,81 @@ class screen2_roadState extends State<screen2_road> {
 
     var platform = Theme.of(context).platform;
 
-    return BlocListener<LocationCubit, UserLocation>(
-      listener: (context, state) {
-        log('listener: $state');
-        if (state.currentLocation != null && state.lastTappedLocation != null) {
-          _mapController.buildRoute(
-            wayPoints: [
-              WayPoint(
-                name: "Start",
-                latitude: state.currentLocation!.latitude,
-                longitude: state.currentLocation!.longitude,
-              ),
-              WayPoint(
-                name: "End",
-                latitude: state.lastTappedLocation!.latitude,
-                longitude: state.lastTappedLocation!.longitude,
-              ),
-            ],
-          );
-        }
-      },
-      child: Stack(
-        children: [
-          Screen_freeNav(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 32, 100, 8),
-            child: TextField(
-              onTap: () async {
-                String? result = await Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => LocationSearch(),
-                  ),
-                );
-                if ((result ?? "").isNotEmpty) {
-                  _locationController.text = result!;
-                } else {
-                  _locationController.clear();
-                }
-              },
-              controller: _locationController,
-              decoration: InputDecoration(
-                hintText: 'Enter destination',
-                //border color white
-                enabledBorder: OutlineInputBorder(
-                  borderSide: BorderSide(color: Colors.white),
-                  borderRadius: BorderRadius.circular(10.0),
+    return Material(
+      child: BlocListener<LocationCubit, UserLocation>(
+        listener: (context, state) {
+          log('listener: $state');
+          if (state.currentLocation != null &&
+              state.lastTappedLocation != null) {
+            _mapController.buildRoute(
+              wayPoints: [
+                WayPoint(
+                  name: "Start",
+                  latitude: state.currentLocation!.latitude,
+                  longitude: state.currentLocation!.longitude,
                 ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                WayPoint(
+                  name: "End",
+                  latitude: state.lastTappedLocation!.latitude,
+                  longitude: state.lastTappedLocation!.longitude,
                 ),
-                hintStyle: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14.0,
-                ),
-                //add a button to clean this at the end
-                suffixIcon: IconButton(
-                  onPressed: () {
+              ],
+            );
+          }
+        },
+        child: Stack(
+          children: [
+            Screen_freeNav(),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(8, 32, 100, 8),
+              child: TextField(
+                onTap: () async {
+                  String? result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => LocationSearch(),
+                    ),
+                  );
+                  if ((result ?? "").isNotEmpty) {
+                    _locationController.text = result!;
+                  } else {
                     _locationController.clear();
-                    _mapController.clearRoute();
-                    _mapController.startFreeDrive();
-                    //hide keyboard
-                    FocusScope.of(context).requestFocus(FocusNode());
-                  },
-                  icon: const Icon(
-                    Icons.clear,
+                  }
+                },
+                controller: _locationController,
+                decoration: InputDecoration(
+                  hintText: 'Enter destination',
+                  //border color white
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.white),
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  hintStyle: TextStyle(
                     color: Colors.white,
+                    fontSize: 14.0,
+                  ),
+                  //add a button to clean this at the end
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      _locationController.clear();
+                      _mapController.clearRoute();
+                      _mapController.startFreeDrive();
+                      //hide keyboard
+                      FocusScope.of(context).requestFocus(FocusNode());
+                    },
+                    icon: const Icon(
+                      Icons.clear,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),
-            ),
-          )
-        ],
+            )
+          ],
+        ),
       ),
     );
     /* child: Scaffold( 
