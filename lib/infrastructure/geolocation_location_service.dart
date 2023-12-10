@@ -1,61 +1,56 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:parking/constants.dart';
 import 'package:parking/domain/models/geocoded_location.dart';
 import 'package:parking/domain/models/lat_lng.dart';
 import 'package:parking/domain/models/live_location.dart';
 import 'package:parking/domain/services/location_service.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+    as bg;
 
 class GeolocationLocationService extends LocationService {
+  StreamController<LiveLocation?>? locationsStreamController;
+
   @override
   Future<LatitudeLongitude> getLocation() async {
     await askForLocationPermission();
-    Position position = await Geolocator.getCurrentPosition();
-    return LatitudeLongitude(position.latitude, position.longitude);
+    bg.Location location = await bg.BackgroundGeolocation.getCurrentPosition(
+        timeout: 30, // 30 second timeout to fetch location
+        maximumAge:
+            5000, // Accept the last-known-location if not older than 5000 ms.
+        desiredAccuracy:
+            10, // Try to fetch a location with an accuracy of `10` meters.
+        samples: 3, // How many location samples to attempt.
+        extras: {
+          // [Optional] Attach your own custom meta-data to this location.  This meta-data will be persisted to SQLite and POSTed to your server
+          "method": "getLocation"
+        });
+    return LatitudeLongitude(
+        location.coords.latitude, location.coords.longitude);
   }
 
   @override
   Future<bool> askForLocationPermission() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return Future.error('Location services are disabled.');
-    }
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return Future.error('Location permissions are denied');
-      }
-    }
-
-    if (permission == LocationPermission.deniedForever) {
-      return Future.error(
-          'Location permissions are permanently denied, we cannot request permissions.');
-    }
     return true;
   }
 
   @override
   Stream<LiveLocation?> getLiveLocation() {
-    const LocationSettings locationSettings = LocationSettings(
-      accuracy: LocationAccuracy.bestForNavigation,
-      distanceFilter: 0,
-    );
-    return Geolocator.getPositionStream(locationSettings: locationSettings)
-        .map((Position? position) {
-      if (position == null) {
-        return null;
-      }
-
-      return LiveLocation(
-        location: LatitudeLongitude(position.latitude, position.longitude),
-        speed: position.speed,
+    locationsStreamController ??= StreamController<LiveLocation?>();
+    bg.BackgroundGeolocation.onGeofence((bg.GeofenceEvent event) {
+      locationsStreamController!.add(
+        LiveLocation(
+          location: LatitudeLongitude(
+            event.location.coords.latitude,
+            event.location.coords.longitude,
+          ),
+          speed: event.location.coords.speed,
+        ),
       );
     });
+    return locationsStreamController!.stream;
   }
 
   @override
@@ -108,6 +103,55 @@ class GeolocationLocationService extends LocationService {
       );
     } catch (e) {
       return null;
+    }
+  }
+
+  @override
+  Future<void> initializeLocationServices() async {
+    bg.State state = await bg.BackgroundGeolocation.ready(
+      bg.Config(
+        reset:
+            false, // <-- lets the Settings screen drive the config rather than re-applying each boot.
+        // Convenience option to automatically configure the SDK to post to Transistor Demo server.
+        //transistorAuthorizationToken: token,
+        // Logging & Debug
+        debug: true,
+        logLevel: bg.Config.LOG_LEVEL_VERBOSE,
+        // Geolocation options
+        desiredAccuracy: bg.Config.DESIRED_ACCURACY_NAVIGATION,
+        distanceFilter: 10.0,
+        // Activity recognition options
+        stopTimeout: 5,
+        backgroundPermissionRationale: bg.PermissionRationale(
+            title:
+                "Allow {applicationName} to access this device's location even when the app is closed or not in use.",
+            message:
+                "This app collects location data to enable recording your trips to work and calculate distance-travelled.",
+            positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
+            negativeAction: 'Cancel'),
+        // HTTP & Persistence
+        autoSync: true,
+        // Application options
+        stopOnTerminate: false,
+        startOnBoot: true,
+        enableHeadless: true,
+        heartbeatInterval: 60,
+      ),
+    );
+
+    log('[ready] ${state.toMap()}');
+    log('[didDeviceReboot] ${state.didDeviceReboot}');
+
+    if (state.schedule!.isNotEmpty) {
+      bg.BackgroundGeolocation.startSchedule();
+    }
+
+    if (state.enabled) {
+      log('Background location tracking enabled');
+    }
+
+    if (state.isMoving ?? false) {
+      log("User is moving");
     }
   }
 }

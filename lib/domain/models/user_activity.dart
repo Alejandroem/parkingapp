@@ -5,9 +5,9 @@ enum UserActivityType {
 
 class UserActivity {
   final UserActivityType type;
-  final DateTime timestamp;
+  final DateTime time;
   UserActivity({
     required this.type,
-    required this.timestamp,
+    required this.time,
   });
 }

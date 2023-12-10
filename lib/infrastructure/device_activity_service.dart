@@ -1,28 +1,14 @@
-import 'dart:developer';
+import 'dart:async';
 
-import 'package:flutter_activity_recognition/flutter_activity_recognition.dart';
 import 'package:parking/domain/models/user_activity.dart';
 import 'package:parking/domain/services/activity_service.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart'
+    as bg;
 
 class DeviceActivityService extends ActivityService {
-  FlutterActivityRecognition activityRecognition =
-      FlutterActivityRecognition.instance;
+  StreamController<UserActivity>? activityStreamController;
 
   Future<bool> isPermissionGrants() async {
-    // Check if the user has granted permission. If not, request permission.
-    PermissionRequestResult reqResult;
-    reqResult = await activityRecognition.checkPermission();
-    if (reqResult == PermissionRequestResult.PERMANENTLY_DENIED) {
-      log('Permission is permanently denied.');
-      return false;
-    } else if (reqResult == PermissionRequestResult.DENIED) {
-      reqResult = await activityRecognition.requestPermission();
-      if (reqResult != PermissionRequestResult.GRANTED) {
-        log('Permission is denied.');
-        return false;
-      }
-    }
-
     return true;
   }
 
@@ -38,63 +24,20 @@ class DeviceActivityService extends ActivityService {
 
   @override
   Stream<UserActivity?> getActivityStream() {
-    /*  _activityStreamSubscription = activityRecognition.activityStream.listen(
-      (Activity event) {
-        log('ActivityStream: $event');
-        if (event.confidence == ActivityConfidence.MEDIUM ||
-            event.confidence == ActivityConfidence.HIGH) {
-          if (userIsInVehicle(event)) {
-            updateLastUserSeenInVehicle(event);
-          }
-          if (userIsOnFootAfterAVehicle(event)) {
-            updateLastPossibleParkingPlace(event);
-          }
-          if (userHasBeenOnFootForFiveMinutes(event)) {
-            updateLastParkedPosition(event);
-          }
-        }
-      },
-      onError: (e) {
-        log('ActivityStream: $e');
-        emit(
-          state.copyWith(
-            lastParkedLocation: null,
-            lastParkedTime: null,
-            lastSwitchOfVelocity: DateTime.now(),
-          ),
-        );
-      },
-      onDone: () {
-        log('ActivityStream: Done');
-        emit(
-          state.copyWith(
-            lastParkedLocation: null,
-            lastParkedTime: null,
-            lastSwitchOfVelocity: DateTime.now(),
-          ),
-        );
-      },
-      cancelOnError: false,
-    ); */
+    activityStreamController ??= StreamController<UserActivity>();
 
-    return activityRecognition.activityStream.map((event) {
-      log('ActivityStream: $event');
-      if (event.confidence == ActivityConfidence.MEDIUM ||
-          event.confidence == ActivityConfidence.HIGH) {
-        return UserActivity(
-          type: isDriving(event.type),
-          timestamp: DateTime.now(),
-        );
-      }
-      //skip the others
-      return null;
+    bg.BackgroundGeolocation.onActivityChange((bg.ActivityChangeEvent event) {
+      activityStreamController!.add(
+        UserActivity(
+          type: event.activity.contains("on_bycicle") ||
+                  event.activity.contains("in_vehicle")
+              ? UserActivityType.driving
+              : UserActivityType.notDriving,
+          time: DateTime.now(),
+        ),
+      );
     });
-  }
 
-  UserActivityType isDriving(ActivityType type) {
-    if (type == ActivityType.IN_VEHICLE || type == ActivityType.ON_BICYCLE) {
-      return UserActivityType.driving;
-    }
-    return UserActivityType.notDriving;
+    return activityStreamController!.stream;
   }
 }

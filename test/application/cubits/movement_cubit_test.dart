@@ -57,17 +57,17 @@ void main() {
               if (count == 0) {
                 return UserActivity(
                   type: UserActivityType.driving,
-                  timestamp: DateTime.now(),
+                  time: DateTime.now(),
                 );
               } else if (count == 1) {
                 return UserActivity(
                   type: UserActivityType.notDriving,
-                  timestamp: DateTime.now(),
+                  time: DateTime.now(),
                 );
               } else {
                 return UserActivity(
                   type: UserActivityType.notDriving,
-                  timestamp: DateTime.now(),
+                  time: DateTime.now(),
                 );
               }
             },
@@ -110,12 +110,12 @@ void main() {
               if (count == 0) {
                 return UserActivity(
                   type: UserActivityType.driving,
-                  timestamp: DateTime(2021, 1, 1, 0, 0, 0),
+                  time: DateTime(2021, 1, 1, 0, 0, 0),
                 );
               } else {
                 return UserActivity(
                   type: UserActivityType.notDriving,
-                  timestamp: DateTime(2021, 1, 1, 0, count + 1, 0),
+                  time: DateTime(2021, 1, 1, 0, count + 1, 0),
                 );
               }
             },
@@ -176,12 +176,12 @@ void main() {
               if (count.isEven) {
                 return UserActivity(
                   type: UserActivityType.driving,
-                  timestamp: DateTime(2021, 1, 1, 0, count + 1, 0),
+                  time: DateTime(2021, 1, 1, 0, count + 1, 0),
                 );
               } else {
                 return UserActivity(
                   type: UserActivityType.notDriving,
-                  timestamp: DateTime(2021, 1, 1, 0, count + 1, 0),
+                  time: DateTime(2021, 1, 1, 0, count + 1, 0),
                 );
               }
             },
