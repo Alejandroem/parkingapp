@@ -44,12 +44,13 @@ void main() async {
       stopTimeout: 5,
       locationAuthorizationRequest: "Always",
       backgroundPermissionRationale: bg.PermissionRationale(
-          title:
-              "Allow {applicationName} to access this device's location even when the app is closed or not in use.",
-          message:
-              "This app collects location data to enable recording your trips to work and calculate distance-travelled.",
-          positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
-          negativeAction: 'Cancel'),
+        title:
+            "Allow {applicationName} to access this device's location even when the app is closed or not in use.",
+        message:
+            "This app collects location data to enable recording your trips to work and calculate distance-travelled.",
+        positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
+        negativeAction: 'Cancel',
+      ),
       // HTTP & Persistence
       autoSync: true,
       // Application options
@@ -57,9 +58,21 @@ void main() async {
       startOnBoot: true,
       enableHeadless: true,
       heartbeatInterval: 60,
-      activityRecognitionInterval: kDebugMode ? 500 : 10000,
+      activityRecognitionInterval: kDebugMode ? 1000 : 10000,
     ),
   );
+
+  try {
+    int status = await bg.BackgroundGeolocation.requestPermission();
+    if (status == bg.ProviderChangeEvent.AUTHORIZATION_STATUS_ALWAYS) {
+      log("[requestPermission] Authorized Always $status");
+    } else if (status ==
+        bg.ProviderChangeEvent.AUTHORIZATION_STATUS_WHEN_IN_USE) {
+      log("[requestPermission] Authorized WhenInUse: $status");
+    }
+  } catch (error) {
+    log("[requestPermission] DENIED: $error");
+  }
 
   log('[ready] ${state.toMap()}');
   log('[didDeviceReboot] ${state.didDeviceReboot}');
