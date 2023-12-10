@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:parking/domain/models/user_activity.dart';
 import 'package:parking/domain/services/activity_service.dart';
@@ -27,10 +28,11 @@ class DeviceActivityService extends ActivityService {
     activityStreamController ??= StreamController<UserActivity>();
 
     bg.BackgroundGeolocation.onActivityChange((bg.ActivityChangeEvent event) {
+      log("Activity received onActivityChange ${event.toMap().toString()}");
       activityStreamController!.add(
         UserActivity(
-          type: event.activity.contains("on_bycicle") ||
-                  event.activity.contains("in_vehicle")
+          type: (event.activity.contains("on_bycicle") ||
+                  event.activity.contains("in_vehicle"))
               ? UserActivityType.driving
               : UserActivityType.notDriving,
           time: DateTime.now(),

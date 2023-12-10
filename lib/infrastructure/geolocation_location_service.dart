@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:parking/constants.dart';
@@ -107,51 +106,5 @@ class GeolocationLocationService extends LocationService {
   }
 
   @override
-  Future<void> initializeLocationServices() async {
-    bg.State state = await bg.BackgroundGeolocation.ready(
-      bg.Config(
-        reset:
-            false, // <-- lets the Settings screen drive the config rather than re-applying each boot.
-        // Convenience option to automatically configure the SDK to post to Transistor Demo server.
-        //transistorAuthorizationToken: token,
-        // Logging & Debug
-        debug: true,
-        logLevel: bg.Config.LOG_LEVEL_VERBOSE,
-        // Geolocation options
-        desiredAccuracy: bg.Config.DESIRED_ACCURACY_NAVIGATION,
-        distanceFilter: 10.0,
-        // Activity recognition options
-        stopTimeout: 5,
-        backgroundPermissionRationale: bg.PermissionRationale(
-            title:
-                "Allow {applicationName} to access this device's location even when the app is closed or not in use.",
-            message:
-                "This app collects location data to enable recording your trips to work and calculate distance-travelled.",
-            positiveAction: 'Change to "{backgroundPermissionOptionLabel}"',
-            negativeAction: 'Cancel'),
-        // HTTP & Persistence
-        autoSync: true,
-        // Application options
-        stopOnTerminate: false,
-        startOnBoot: true,
-        enableHeadless: true,
-        heartbeatInterval: 60,
-      ),
-    );
-
-    log('[ready] ${state.toMap()}');
-    log('[didDeviceReboot] ${state.didDeviceReboot}');
-
-    if (state.schedule!.isNotEmpty) {
-      bg.BackgroundGeolocation.startSchedule();
-    }
-
-    if (state.enabled) {
-      log('Background location tracking enabled');
-    }
-
-    if (state.isMoving ?? false) {
-      log("User is moving");
-    }
-  }
+  Future<void> initializeLocationServices() async {}
 }

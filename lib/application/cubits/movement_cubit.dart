@@ -134,7 +134,7 @@ class MovementCubit extends Cubit<MovementState> {
           ),
         ) {
     //subscribeToLocationEvents();
-    requestPermissionsAndStartTracking();
+    //requestPermissionsAndStartTracking();
   }
 
   void subscribeToLocationEvents() {
@@ -193,56 +193,57 @@ class MovementCubit extends Cubit<MovementState> {
 
   void requestPermissionsAndStartTracking() async {
     await _activityService.askForActivityPermission();
-    //_activityStreamSubscription = _activityService.getActivityStream().listen(
-    Stream<UserActivity> fakeStream = Stream<UserActivity>.periodic(
-      const Duration(seconds: 10),
-      (count) {
-        log('activityStream: $count');
 
-        int lastDigitOfCount = count % 10;
-        if (lastDigitOfCount < 5) {
-          //driving
-          return UserActivity(
-            type: UserActivityType.driving,
-            time: DateTime.now(),
-          );
-        } else {
-          //not driving
-          return UserActivity(
-            type: UserActivityType.notDriving,
-            time: DateTime.now(),
-          );
-        }
+    // Stream<UserActivity> fakeStream = Stream<UserActivity>.periodic(
+    //   const Duration(seconds: 10),
+    //   (count) {
+    //     log('activityStream: $count');
+
+    //     int lastDigitOfCount = count % 10;
+    //     if (lastDigitOfCount < 5) {
+    //       //driving
+    //       return UserActivity(
+    //         type: UserActivityType.driving,
+    //         time: DateTime.now(),
+    //       );
+    //     } else {
+    //       //not driving
+    //       return UserActivity(
+    //         type: UserActivityType.notDriving,
+    //         time: DateTime.now(),
+    //       );
+    //     }
+    //   },
+    // );
+
+    //   _activityStreamSubscription = fakeStream.listen(
+    //     onEvent,
+    //     onError: (e) {
+    //       log('activityStream: $e');
+    //     },
+    //     onDone: () {
+    //       log('activityStream: done');
+    //     },
+    //   );
+    _activityStreamSubscription = _activityService.getActivityStream().listen(
+      onEvent,
+      onError: (e) {
+        log('activityStream: $e');
+      },
+      onDone: () {
+        log('activityStream: done');
       },
     );
-
-    if (kDebugMode) {
-      _activityStreamSubscription = fakeStream.listen(
-        onEvent,
-        onError: (e) {
-          log('activityStream: $e');
-        },
-        onDone: () {
-          log('activityStream: done');
-        },
-      );
-    } else {
-      _activityStreamSubscription = _activityService.getActivityStream().listen(
-        onEvent,
-        onError: (e) {
-          log('activityStream: $e');
-        },
-        onDone: () {
-          log('activityStream: done');
-        },
-      );
-    }
   }
 
   void onEvent(event) {
     log('MovementCubit: $event');
-    log('MovementCubit: ${event.timestamp}');
-    log('MovementCubit: ${event.type}');
+    if (event != null && event.time != null) {
+      log('MovementCubit: ${event?.time}');
+    }
+    if (event != null && event.type != null) {
+      log('MovementCubit: ${event?.type}');
+    }
     if (userIsDriving(event)) {
       updateLastSeenDrivingAndDeleteParkingTime(event);
     }
